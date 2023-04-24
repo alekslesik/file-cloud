@@ -19,7 +19,7 @@ type Config struct {
 		}
 	}
 	LoggerSruct struct {
-		Filename   string `env:"LOG_FILENAME" env-default:"./tmp/log.log"`
+		Filename   string `env:"LOG_FILENAME" env-default:"./logs/log.log"`
 		MaxSize    int    `env:"LOG_MAXSIZE" env-default:"100"`
 		MaxBackups int    `env:"LOG_MAXBACKUP" env-default:"3"`
 		MaxAge     int    `env:"LOG_MAXAGE" env-default:"24"`

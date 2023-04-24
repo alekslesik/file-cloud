@@ -5,11 +5,11 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
-	"log"
 
 	"net/http"
-	// "os"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
@@ -28,11 +28,11 @@ const version = "1.0.0"
 // server to listen on, and the name of the current operating environment for the
 // application (development, staging, production, etc.). We will read in these
 // configuration settings from command-line flags when the application starts.
-// type config struct {
-// 	port int
-// 	env  string
-// }
-
+//
+//	type config struct {
+//		port int
+//		env  string
+//	}
 type contextKey string
 
 var contextKeyUser = contextKey("user")
@@ -96,8 +96,7 @@ func main() {
 
 	// Initialisation application struct
 	app := &application{
-		config: cfg,
-		// appPath:       appPath,
+		config:        cfg,
 		logger:        &logger,
 		session:       session,
 		files:         &mysql.FileModel{DB: db},
@@ -115,7 +114,8 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Printf("Server started on http://golang.fvds.ru%s/", srv.Addr)
+	log.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
+
 	logger.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
 
 	// Use the ListenAndServeTLS() method to start the HTTPS server. We
@@ -126,6 +126,7 @@ func main() {
 	// keyFile := appPath + "/src/github.com/sanjas12/new_CC/tls/key.pem"
 
 	// err = srv.ListenAndServeTLS(certFile, keyFile)
+	log.Fatal().Msg(err.Error())
 	logger.Fatal().Err(err)
 }
 
