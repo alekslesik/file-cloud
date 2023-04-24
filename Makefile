@@ -22,7 +22,7 @@ confirm:
 ## run: run the cmd/app application
 .PHONY: run
 run: 
-	go run ./cmd/web
+	go run ./cmd/file-cloud
 
 ## psql: connect to the database using psql
 .PHONY: mysql
@@ -98,6 +98,6 @@ linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_descr
 .PHONY: build
 build:
 	@echo 'Building cmd/api...'
-	go build -ldflags=${linker_flags} -o=./bin/web ./cmd/web
-	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www ./cmd/web
+	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
+	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www ./cmd/file-cloud
 
