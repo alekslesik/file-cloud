@@ -1,11 +1,9 @@
-# new_CC
-
+# FILE Cloud
 
 <!-- linux -->
 mkdir ~/root/go
 mkdir $HOME/go/src/github.com/@github_name/
 cd $HOME/go/src/github.com/@github_name/
-git clone https://github.com/sanjas12/new_CC.git
 
 
 
@@ -52,9 +50,6 @@ root 4864Kokos///
 
 
 6. SQLTools(vscode extessions) -> Add New Connection -> name(alex_s); username(web); pass(ndJMv9zrJw) -> connect now
-
-
-
 
 
 ## Golang
