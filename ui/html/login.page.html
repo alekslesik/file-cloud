@@ -1,0 +1,34 @@
+{{template "base" .}}
+
+{{define "title"}}Login{{end}}
+
+{{define "body"}}
+<article>
+    <div id="content">
+        <h1 class="title">Login</h1>
+        <div class="post-content">
+            <form id="form" class="topBefore" action="/user/login" method="post" novalidate>
+                <!-- Include the CSRF token -->
+                <input type="hidden" name="csrf_token" value='{{.CSRFToken}}'>
+                {{with .Form}}
+                <div>
+                    <input id="email" type="email" name="email" value='{{.Get "email"}}' placeholder="E-MAIL">
+                </div>
+                <div>
+                    <input id="password" type="password" name="password" placeholder="PASSWORD">
+                </div>
+                <div>
+                    <input id="submit" type="submit" value="Login">
+                </div>
+                {{with .Errors.Get "generic"}}
+                <div class="error">{{.}}</div>
+                {{end}}
+                {{end}}
+            </form>
+        </div>
+
+    </div>
+
+</article>
+
+{{end}}

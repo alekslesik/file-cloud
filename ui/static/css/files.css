@@ -1,0 +1,11 @@
+.files {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.file {
+    width: 160px;
+    height: 145px;
+    word-wrap: anywhere;
+}
