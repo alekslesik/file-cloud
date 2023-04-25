@@ -21,8 +21,14 @@ confirm:
 
 ## run: run the cmd/app application
 .PHONY: run
-run: 
+run:
+	systemctl stop file-cloud
 	go run ./cmd/file-cloud
+
+## stop: stop the file-cloud.servise
+.PHONY: stop
+stop: 
+	systemctl stop file-cloud
 
 ## psql: connect to the database using psql
 .PHONY: mysql
@@ -96,8 +102,11 @@ linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_descr
 
 ## build/api: build the cmd/api application
 .PHONY: build
-build:
-	@echo 'Building cmd/api...'
+build: audit
+	systemctl stop file-cloud
 	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
-	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www ./cmd/file-cloud
+	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
+	# cp -a -R ui /var/www/
+	systemctl start file-cloud
+	tail -f /var/www/logs/log.log
 

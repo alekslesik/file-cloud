@@ -23,23 +23,13 @@ import (
 // number as a hard-coded global constant.
 const version = "1.0.0"
 
-// Define a config struct to hold all the configuration settings for our application.
-// For now, the only configuration settings will be the network port that we want the
-// server to listen on, and the name of the current operating environment for the
-// application (development, staging, production, etc.). We will read in these
-// configuration settings from command-line flags when the application starts.
-//
-//	type config struct {
-//		port int
-//		env  string
-//	}
 type contextKey string
 
 var contextKeyUser = contextKey("user")
 
 type application struct {
-	config   *config.Config
-	appPath  string
+	config *config.Config
+	// embedFS  embed.FS
 	logger   *logging.Logger
 	session  *sessions.Session
 	UserName string
@@ -82,10 +72,12 @@ func main() {
 	defer db.Close()
 
 	// Initialise new cache pattern
-	templateCache, err := newTemplateCache("./ui/html")
+	templateCache, err := newTemplateCache("ui/html/")
 	if err != nil {
 		logger.Fatal().Err(err)
 	}
+
+	log.Debug().Msgf("main() - templateCache = %v", templateCache)
 
 	// Initialize a new session manager
 	session := sessions.New([]byte(*secret))
@@ -96,7 +88,8 @@ func main() {
 
 	// Initialisation application struct
 	app := &application{
-		config:        cfg,
+		config: cfg,
+		// embedFS:       embedFS,
 		logger:        &logger,
 		session:       session,
 		files:         &mysql.FileModel{DB: db},
@@ -115,7 +108,6 @@ func main() {
 	}
 
 	log.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
-
 	logger.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
 
 	// Use the ListenAndServeTLS() method to start the HTTPS server. We

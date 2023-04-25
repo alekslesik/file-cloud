@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -25,7 +26,7 @@ func (app *application) loginUserForm(w http.ResponseWriter, r *http.Request) {
 func (app *application) loginUser(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, http.StatusBadRequest, fmt.Errorf("login user POST /login error"))
 		return
 	}
 
@@ -66,7 +67,7 @@ func (app *application) signupUser(w http.ResponseWriter, r *http.Request) {
 	// Parse the form data.
 	err := r.ParseForm()
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, http.StatusBadRequest, fmt.Errorf("sign up user POST /user/signup error"))
 		return
 	}
 
@@ -142,7 +143,7 @@ func (app *application) uploadFile(w http.ResponseWriter, r *http.Request) {
 	// Get file from POST
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		app.clientError(w, http.StatusBadRequest)
+		app.clientError(w, http.StatusBadRequest, fmt.Errorf("files page POST /files error"))
 	}
 	defer file.Close()
 	fileType := handler.Header.Get("Content-Type")
@@ -158,7 +159,7 @@ func (app *application) uploadFile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create/open file on /upload dir
-	f, err := os.OpenFile(app.appPath+"/upload/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile("../../upload/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		app.serverError(w, err)
 	}

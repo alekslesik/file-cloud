@@ -8,12 +8,15 @@ import (
 
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
+	"github.com/rs/zerolog/log"
 )
 
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	// extract pattern depending "name"
+	log.Debug().Msgf("render() - app.templateCache: %v", app.templateCache)
 	ts, ok := app.templateCache[name]
 	if !ok {
+		log.Debug().Msgf("render() - name: %v", name)
 		app.serverError(w, fmt.Errorf("pattern %s not exist", name))
 		return
 	}
@@ -35,7 +38,9 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 // The clientError helper sends a specific status code and corresponding descri
 // to the user. We'll use this later in the book to send responses like 400 "Bad Request"
 // when there's a problem with the request that the user sent.
-func (app *application) clientError(w http.ResponseWriter, status int) {
+func (app *application) clientError(w http.ResponseWriter, status int, err error) {
+	log.Err(err).Msg("")
+	app.logger.Err(err).Msg("")
 	http.Error(w, http.StatusText(status), status)
 }
 
@@ -43,7 +48,8 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 // then sends a generic 500 Internal Server Error response to the user.
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	// trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	// app.logger.Output(2, trace)
+	log.Err(err).Msg("")
+	app.logger.Err(err).Msg("")
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }

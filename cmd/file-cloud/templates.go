@@ -1,12 +1,18 @@
 package main
 
 import (
+	"embed"
+
 	"html/template"
+	"path"
+
+	// "path"
 	"path/filepath"
 	"time"
 
 	"github.com/alekslesik/file-cloud/pkg/forms"
 	"github.com/alekslesik/file-cloud/pkg/models"
+	// "github.com/rs/zerolog/log"
 )
 
 type templateData struct {
@@ -19,6 +25,15 @@ type templateData struct {
 	File              *models.File
 	Files             []*models.File
 }
+
+// Below we declare a new variable with the type embed.FS (embedded file system) to hold
+// our email templates. This has a comment directive in the format `//go:embed <path>`
+// IMMEDIATELY ABOVE it, which indicates to Go that we want to store the contents of the
+// ./templates directory in the templateFS embedded file system variable.
+// ↓↓↓
+
+//go:embed ui/html/*.html
+var embedFS embed.FS
 
 // Return nicely formatted string of time.Time object
 func humanDate(t time.Time) string {
@@ -41,31 +56,26 @@ func newTemplateCache(dir string) (map[string]*template.Template, error) {
 	// init new map keeping cache
 	cache := map[string]*template.Template{}
 
-	// use func Glob to get all filepathes slice with '.page.html' ext
-	pages, err := filepath.Glob(filepath.Join(dir, "*.page.html"))
+	// take all file from embed FS
+	readDir, err := embedFS.ReadDir("ui/html")
 	if err != nil {
 		return nil, err
 	}
 
-	for _, page := range pages {
+	for _, page := range readDir {
 		// get filename from filepath
-		name := filepath.Base(page)
+		name := filepath.Base(page.Name())
 
 		// The template.FuncMap must be registered with the template set before
 		// call the ParseFiles() method. This means we have to use template.New
 		// create an empty template set, use the Funcs() method t
-		ts, err := template.New(name).Funcs(functions).ParseFiles(page)
-		if err != nil {
-			return nil, err
-		}
+		// ts, err := template.New(name).Funcs(functions).ParseFiles(page)
 
-		// use ParseGlob to add all frame patterns (base.layout.html)
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.html"))
-		if err != nil {
-			return nil, err
-		}
+		lp := path.Join(dir, "*.layout.html")
+		fp := path.Join(dir, name)
+		pp := path.Join(dir, "*.partial.html")
 
-		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.html"))
+		ts, err := template.New(name).Funcs(functions).ParseFS(embedFS, lp, fp, pp)
 		if err != nil {
 			return nil, err
 		}

@@ -29,7 +29,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/files", dynamicMiddleware.ThenFunc(app.uploadFileForm))
 	mux.Post("/files", dynamicMiddleware.ThenFunc(app.uploadFile))
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	fileServer := http.FileServer(http.Dir("./ui/static"))
 	mux.Get("/static/", http.StripPrefix("/static", fileServer))
 
 	// for end-to-end testing
