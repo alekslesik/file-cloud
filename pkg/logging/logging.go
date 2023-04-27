@@ -5,9 +5,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/natefinch/lumberjack"
+	// "github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
+	// "github.com/rs/zerolog/log"
 )
 
 type Logger struct {
@@ -16,19 +16,24 @@ type Logger struct {
 
 // Return new zerologer
 func GetLogger(cfg *config.Config) Logger {
-	z := zerolog.New(&lumberjack.Logger{
-		Filename:   cfg.LoggerSruct.Filename,
-		MaxSize:    cfg.LoggerSruct.MaxSize,
-		MaxBackups: cfg.LoggerSruct.MaxBackups,
-		MaxAge:     cfg.LoggerSruct.MaxAge,
-		Compress:   cfg.LoggerSruct.Compress,
-	})
 
-	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+	file, err := os.OpenFile(
+		"myapp.log",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+		0664,
+	)
+	if err != nil {
+		panic(err)
+	}
 
-	zerolog.TimeFieldFormat = time.DateTime
+	defer file.Close()
 
-	z = z.With().Caller().Time("time", time.Now()).Logger()
+	z := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
+		Level(zerolog.TraceLevel).
+		With().
+		Timestamp().
+		Caller().
+		Logger()
 
 	return Logger{z}
 }

@@ -16,7 +16,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	log.Debug().Msgf("render() - app.templateCache: %v", app.templateCache)
 	ts, ok := app.templateCache[name]
 	if !ok {
-		log.Debug().Msgf("render() - name: %v", name)
+		app.logger.Debug().Msgf("render() - name: %v", name)
 		app.serverError(w, fmt.Errorf("pattern %s not exist", name))
 		return
 	}

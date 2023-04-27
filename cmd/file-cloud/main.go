@@ -77,8 +77,6 @@ func main() {
 		logger.Fatal().Err(err)
 	}
 
-	log.Debug().Msgf("main() - templateCache = %v", templateCache)
-
 	// Initialize a new session manager
 	session := sessions.New([]byte(*secret))
 	// TODO add username to session //session = session.New([]byte(*userName))
@@ -107,7 +105,6 @@ func main() {
 		WriteTimeout: 10 * time.Second,
 	}
 
-	log.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
 	logger.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
 
 	// Use the ListenAndServeTLS() method to start the HTTPS server. We

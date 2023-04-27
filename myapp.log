@@ -1,0 +1,7 @@
+[90m2023-04-25T17:03:36+03:00[0m [35mTRC[0m [1mpkg/logging/logging.go:38[0m[36m >[0m trace message
+[90m2023-04-25T17:03:36+03:00[0m [33mDBG[0m [1mpkg/logging/logging.go:39[0m[36m >[0m debug message
+[90m2023-04-25T17:03:36+03:00[0m [32mINF[0m [1mpkg/logging/logging.go:40[0m[36m >[0m info message
+[90m2023-04-25T17:03:36+03:00[0m [31mWRN[0m [1mpkg/logging/logging.go:41[0m[36m >[0m warn message
+[90m2023-04-25T17:03:36+03:00[0m [1m[31mERR[0m[0m [1mpkg/logging/logging.go:42[0m[36m >[0m error message
+[90m2023-04-25T17:03:36+03:00[0m [1m[31mFTL[0m[0m [1mpkg/logging/logging.go:43[0m[36m >[0m fatal message
+[90m2023-04-25T17:03:36+03:00[0m [1m[31mPNC[0m[0m [1mpkg/logging/logging.go:44[0m[36m >[0m panic message
