@@ -29,8 +29,9 @@ func (app *application) routes() http.Handler {
 	mux.Get("/files", dynamicMiddleware.ThenFunc(app.uploadFileForm))
 	mux.Post("/files", dynamicMiddleware.ThenFunc(app.uploadFile))
 
-	fileServer := http.FileServer(http.Dir("./ui/static"))
-	mux.Get("/static/", http.StripPrefix("/static", fileServer))
+	// request type '/static/css/main.css', root of embed FS is file-cloud/
+	fileServer := http.FileServer(http.FS(embedFS))
+	mux.Get("/static/", fileServer)
 
 	// for end-to-end testing
 	// mux.Get("/ping", http.HandlerFunc(ping))

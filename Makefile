@@ -19,18 +19,48 @@ confirm:
 # DEVELOPMENT #
 #=====================================#
 
-## run: run the cmd/app application
+## run: go run the cmd/* application
 .PHONY: run
 run:
 	systemctl stop file-cloud
 	go run ./cmd/file-cloud
+
+## execute: execute the bin/ binary file
+.PHONY: execute
+execute: build
+	systemctl stop file-cloud
+	./bin/./file-cloud
+	
+
+#=====================================#
+# UNIT SERVISE #
+#=====================================#
+
+## start: start the file-cloud.servise
+.PHONY: start
+start: 
+	systemctl start file-cloud
 
 ## stop: stop the file-cloud.servise
 .PHONY: stop
 stop: 
 	systemctl stop file-cloud
 
-## psql: connect to the database using psql
+## restart: restart the file-cloud.servise
+.PHONY: restart
+restart: 
+	systemctl restart file-cloud
+
+## status: status the file-cloud.servise
+.PHONY: status
+status: 
+	systemctl status file-cloud
+
+#=====================================#
+# DATABASE #
+#=====================================#
+
+## mysql: connect to the database using mysql
 .PHONY: mysql
 mysql:
 	mysql -u web 'file_cloud' -p
@@ -107,6 +137,6 @@ build: audit
 	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
 	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
 	# cp -a -R ui /var/www/
-	systemctl start file-cloud
-	tail -f /var/www/logs/log.log
+	systemctl restart file-cloud
+	# tail -f /var/www/logs/log.log
 

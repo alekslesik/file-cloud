@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"embed"
 	"flag"
 	"fmt"
 	"html/template"
@@ -23,13 +24,15 @@ import (
 // number as a hard-coded global constant.
 const version = "1.0.0"
 
+//go:embed *
+var embedFS embed.FS
+
 type contextKey string
 
 var contextKeyUser = contextKey("user")
 
 type application struct {
-	config *config.Config
-	// embedFS  embed.FS
+	config   *config.Config
 	logger   *logging.Logger
 	session  *sessions.Session
 	UserName string
@@ -72,7 +75,7 @@ func main() {
 	defer db.Close()
 
 	// Initialise new cache pattern
-	templateCache, err := newTemplateCache("ui/html/")
+	templateCache, err := newTemplateCache("html/")
 	if err != nil {
 		logger.Fatal().Err(err)
 	}
@@ -86,8 +89,7 @@ func main() {
 
 	// Initialisation application struct
 	app := &application{
-		config: cfg,
-		// embedFS:       embedFS,
+		config:        cfg,
 		logger:        &logger,
 		session:       session,
 		files:         &mysql.FileModel{DB: db},

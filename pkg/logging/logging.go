@@ -17,16 +17,17 @@ type Logger struct {
 // Return new zerologer
 func GetLogger(cfg *config.Config) Logger {
 
-	file, err := os.OpenFile(
-		"myapp.log",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0664,
-	)
-	if err != nil {
-		panic(err)
-	}
+	////logging to file
+	// file, err := os.OpenFile(
+	// 	"myapp.log",
+	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+	// 	0664,
+	// )
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	defer file.Close()
+	// defer file.Close()
 
 	z := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
 		Level(zerolog.TraceLevel).
