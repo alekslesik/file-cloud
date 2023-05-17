@@ -40,7 +40,7 @@ Go    - https://go.dev/dl/
 
 4. install list-extensions for vscode
 
-root 4864Kokos///
+
 
 5. start Mysql
   5.1 mysql -u root

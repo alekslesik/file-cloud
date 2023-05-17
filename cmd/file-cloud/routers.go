@@ -24,7 +24,7 @@ func (app *application) routes() http.Handler {
 	mux.Get("/user/login", dynamicMiddleware.ThenFunc(app.loginUserForm))
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(app.loginUser))
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(app.signupUserForm))
-	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(app.signupUser))
+	mux.Post("/user/signup", http.HandlerFunc(app.signupUser))
 	mux.Get("/user/logout", dynamicMiddleware.ThenFunc(app.logoutUser))
 	mux.Get("/files", dynamicMiddleware.ThenFunc(app.uploadFileForm))
 	mux.Post("/files", dynamicMiddleware.ThenFunc(app.uploadFile))

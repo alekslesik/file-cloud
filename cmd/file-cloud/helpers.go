@@ -8,7 +8,8 @@ import (
 
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
-	"github.com/rs/zerolog/log"
+
+	// "github.com/rs/zerolog/log"
 )
 
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
@@ -25,7 +26,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 	// write template to the buffer, instead straight to http.ResponseWriter
 	err := ts.Execute(buf, app.addDefaultData(td, r))
 	if err != nil {
-		app.serverError(w, err)
+		app.serverError(w, fmt.Errorf("template %v not executed", ts))
 		return
 	}
 
@@ -37,8 +38,7 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, name stri
 // to the user. We'll use this later in the book to send responses like 400 "Bad Request"
 // when there's a problem with the request that the user sent.
 func (app *application) clientError(w http.ResponseWriter, status int, err error) {
-	log.Err(err).Msg("")
-	app.logger.Err(err).Msg("")
+	app.logger.Err(err).Msg("clientError")
 	http.Error(w, http.StatusText(status), status)
 }
 
@@ -46,7 +46,6 @@ func (app *application) clientError(w http.ResponseWriter, status int, err error
 // then sends a generic 500 Internal Server Error response to the user.
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	// trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-	log.Err(err).Msg("")
 	app.logger.Err(err).Msg("")
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
