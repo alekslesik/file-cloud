@@ -1,0 +1,37 @@
+{{template "base" .}}
+
+{{define "title"}}My Files{{end}}
+
+{{define "body"}}
+<article>
+    <div id="content">
+        <h1 class="title">My Files</h1>
+        <div class="post-content">
+            <div class="files">
+                {{if .Files}}
+                {{range .Files}}
+                <div class="file">
+                    <p>
+                        {{ .Name}}
+                    </p>
+                </div>
+                {{end}}
+                {{end}}
+            </div>
+            <form id="form" class="topBefore" enctype="multipart/form-data" action="/files" method="post" novalidate>
+                <!-- Include the CSRF token -->
+                <input type="hidden" name="csrf_token" value='{{.CSRFToken}}'>
+                <div>
+                    <label class="input-file">
+                        <input id="file" type="file" name="file">
+                        <span>Сhoice File</span>
+                    </label>
+                </div>
+                <div>
+                    <input id="submit" type="submit" value="Upload">
+                </div>
+            </form>
+        </div>
+    </div>
+</article>
+{{end}}

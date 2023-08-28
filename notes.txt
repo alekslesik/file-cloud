@@ -1,0 +1,10 @@
+!Пользователи!
+SELECT host, user, password_expired FROM mysql.user;                                        показать всех пользователей
+CREATE USER 'file_cloud'@'localhost' IDENTIFIED BY 'Todor1990///'; FLUSH PRIVILEGES;        создать пользователя
+DROP USER 'file_cloud'@'somehost.somedomain';                                               удалить пользователя                      
+ALTER USER 'file_cloud'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';    смена пароля
+GRANT SELECT ON `file_cloud`.* TO 'file_cloud'@'localhost'; FLUSH PRIVILEGES;               доступ к БД
+
+!Таблицы!
+USE database_name;                                                                          переключить БД
+SHOW TABLES;                                                                                показать Таблицы

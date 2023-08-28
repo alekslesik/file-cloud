@@ -1,0 +1,95 @@
+/* * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    font-family: "Ubuntu Mono", monospace;
+} */
+
+html,
+body {
+    font-family: Menlo, Consolas, Monaco, "Lucida Console", "Liberation Mono", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Courier New", monospace, serif;
+    font-size: 14px;
+    line-height: 1.4em;
+    background-color: #ffffff;
+    color: #2b2b2b;
+}
+
+body {
+    max-width: 640px;
+    margin: 100px auto 100px auto;
+}
+
+#header,
+#content,
+#footer,
+#topnav {
+    margin: 0px 20px 0px 20px;
+}
+
+#content .date,
+#content .author {
+    font-weight: bold;
+}
+
+h1 {
+    line-height: 1.5em;
+    font-size: 2em;
+    margin: 0.67em 0;
+}
+
+#topnav ul {
+    list-style-type: none;
+    margin: 0px 0px 20px 0px;
+    padding: 0px;
+}
+
+#topnav ul li {
+    display: inline-block;
+}
+
+a {
+    background: transparent;
+    color: rgb(33, 144, 211);
+    text-decoration: none;
+}
+
+#footer {
+    margin: 20px 20px 0px 20px;
+    padding: 0px;
+    position: absolute;
+    max-width: 600px;
+    display: block;
+    width: 600px;
+    text-align: center;
+    background-color: black;
+    color: wheat;
+    padding-bottom: 50px;
+    bottom: 0;
+}
+
+.flash {
+    width: 50%;
+    /* height: 50%; */
+    overflow: auto;
+    margin: auto;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    text-align: center;
+    color:#00d25e;
+    z-index: -1;
+}
+
+.login {
+    float: right;
+    padding-left: 10px;
+}
+
+.name {
+    float: right;
+    padding-left: 10px;
+    color: #00d25e;
+}

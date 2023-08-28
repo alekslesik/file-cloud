@@ -1,0 +1,24 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "xprotocol"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "file_cloud",
+            "database": "file_cloud",
+            "username": "file_cloud",
+            "password": "Todor1990///",
+            "connectionTimeout": 15
+        }
+    ],
+    "cSpell.words": [
+        "cserror",
+        "justinas",
+        "nosurf"
+    ]
+
+}
