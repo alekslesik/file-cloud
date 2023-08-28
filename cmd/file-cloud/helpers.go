@@ -8,7 +8,6 @@ import (
 
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
-
 	// "github.com/rs/zerolog/log"
 )
 

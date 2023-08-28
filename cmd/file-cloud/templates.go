@@ -22,7 +22,6 @@ type templateData struct {
 	Files             []*models.File
 }
 
-
 // Return nicely formatted string of time.Time object
 func humanDate(t time.Time) string {
 	if t.IsZero() {
