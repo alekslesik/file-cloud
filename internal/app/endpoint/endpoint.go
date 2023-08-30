@@ -52,7 +52,7 @@ func (e *Endpoint) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "version: %s\n", version)
 }
 
-
+// Home GET /
 func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
 	e.hp.Render(w, r, "home.page.html", &templates.TemplateData{})
 }

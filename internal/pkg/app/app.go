@@ -5,11 +5,12 @@ import (
 	"flag"
 	"fmt"
 	"html/template"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"net/http"
 	"time"
-
-	"github.com/rs/zerolog/log"
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
@@ -117,14 +118,18 @@ func (a *Application) Run() {
 		WriteTimeout: 10 * time.Second,
 	}
 
+
+	done := make(chan os.Signal, 1)
+	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil {
+			a.logger.Error().Msg("failed to start server")
+		}
+	}()
+
 	a.logger.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
 
-	// Use the ListenAndServeTLS() method to start the HTTPS server. We
-	// pass in the paths to the TLS certificate and corresponding private key a
-	// the two parameters.
-	err := srv.ListenAndServe()
-
-	// err = srv.ListenAndServeTLS(certFile, keyFile)
-	log.Fatal().Msg(err.Error())
-	a.logger.Fatal().Err(err)
+	<-done
+	a.logger.Info().Msg("server stopped")
 }
