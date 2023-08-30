@@ -8,7 +8,7 @@ import (
 
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
-	"github.com/alekslesik/file-cloud/internal/pkg/templates"
+	"github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/forms"
 	"github.com/alekslesik/file-cloud/pkg/models"
 )
@@ -19,8 +19,8 @@ import (
 const version = "1.0.0"
 
 type Helpers interface {
-	Render(http.ResponseWriter, *http.Request, string, *templates.TemplateData)
-	AddDefaultData(*templates.TemplateData, *http.Request) *templates.TemplateData
+	Render(http.ResponseWriter, *http.Request, string, *template.TemplateData)
+	AddDefaultData(*template.TemplateData, *http.Request) *template.TemplateData
 	AuthenticatedUser(*http.Request) *models.User
 }
 
@@ -39,7 +39,7 @@ type Endpoint struct {
 func New(hp Helpers, er ClientServerError, md model.Model, ss session.Session) Endpoint {
 	return Endpoint{
 		hp: hp,
-		er : er,
+		er: er,
 		md: md,
 		ss: ss,
 	}
@@ -54,12 +54,12 @@ func (e *Endpoint) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
 
 // Home GET /
 func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
-	e.hp.Render(w, r, "home.page.html", &templates.TemplateData{})
+	e.hp.Render(w, r, "home.page.html", &template.TemplateData{})
 }
 
 // Login user GET /login.
 func (e *Endpoint) UserLoginGet(w http.ResponseWriter, r *http.Request) {
-	e.hp.Render(w, r, "login.page.html", &templates.TemplateData{
+	e.hp.Render(w, r, "login.page.html", &template.TemplateData{
 		Form: forms.New(nil),
 	})
 }
@@ -83,7 +83,7 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	if err == models.ErrInvalidCredentials {
 		form.Errors.Add("generic", "Email or Password is incorrect")
 
-		e.hp.Render(w, r, "login.page.html", &templates.TemplateData{Form: form})
+		e.hp.Render(w, r, "login.page.html", &template.TemplateData{Form: form})
 		return
 	} else if err != nil {
 		e.er.ServerError(w, err)
@@ -99,7 +99,7 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 
 // Sign up user GET /user/signup
 func (e *Endpoint) UserSignupGet(w http.ResponseWriter, r *http.Request) {
-	e.hp.Render(w, r, "signup.page.html", &templates.TemplateData{
+	e.hp.Render(w, r, "signup.page.html", &template.TemplateData{
 		Form: forms.New(nil),
 	})
 
@@ -122,7 +122,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// If there are any errors, redisplay the signup form.
 	if !form.Valid() {
-		e.hp.Render(w, r, "signup.page.html", &templates.TemplateData{
+		e.hp.Render(w, r, "signup.page.html", &template.TemplateData{
 			Form: form,
 		})
 		return
@@ -133,7 +133,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	err = e.md.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
 	if err == models.ErrDuplicateEmail {
 		form.Errors.Add("email", "Address is already in use")
-		e.hp.Render(w, r, "signup.page.html", &templates.TemplateData{
+		e.hp.Render(w, r, "signup.page.html", &template.TemplateData{
 			Form: form,
 		})
 		return
@@ -169,7 +169,7 @@ func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 			e.er.ServerError(w, err)
 		}
 
-		e.hp.Render(w, r, "files.page.html", &templates.TemplateData{
+		e.hp.Render(w, r, "files.page.html", &template.TemplateData{
 			Files: files,
 		})
 	} else {

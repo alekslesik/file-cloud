@@ -19,7 +19,7 @@ import (
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
-	"github.com/alekslesik/file-cloud/internal/pkg/templates"
+	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 )
@@ -27,7 +27,6 @@ import (
 // Declare a string containing the application version number. Later in the book we'll
 // generate this automatically at build time, but for now we'll just store the version
 // number as a hard-coded global constant.
-
 
 type Application struct {
 	config        *config.Config
@@ -58,6 +57,12 @@ func New() (*Application, error) {
 	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret")
 	flag.Parse()
 
+	// Initialize a new session manager
+	// TODO add username to session //session = session.New([]byte(*userName))
+	session := session.New(secret)
+	helpers := helpers.New(logger)
+	csErrors := cserror.New()
+
 	// Open DB connection pull
 	db, err := openDB(*dsn)
 	if err != nil {
@@ -65,21 +70,17 @@ func New() (*Application, error) {
 	}
 	defer db.Close()
 
-	// Initialize new cache pattern
-	templateCache, err := templates.NewTemplateCache("html/")
-	if err != nil {
-		logger.Fatal().Err(err)
-	}
-
-	// Initialize a new session manager
-	// TODO add username to session //session = session.New([]byte(*userName))
-	session := session.New(secret)
-	helpers := helpers.New()
-	csErrors := cserror.New()
 	model := model.New(db)
 	middleware := middleware.New(session, &logger, csErrors, &model)
 	endpoint := endpoint.New(helpers, csErrors, model, *session)
 	router := router.New(endpoint, middleware, session)
+	template := tmpl.New(&logger)
+
+	// Initialize new cache pattern
+	// templateCache, err := template1.NewTemplateCache("/root/go/src/github.com/alekslesik/file-cloud/website/content")
+	// if err != nil {
+	// 	logger.Fatal().Msgf("error template cache: %s", err)
+	// }
 
 	// Initialization application struct
 	app := &Application{
@@ -90,7 +91,7 @@ func New() (*Application, error) {
 		middleware:    middleware,
 		session:       session,
 		model:         model,
-		templateCache: templateCache,
+		templateCache: template.NewCache("/root/go/src/github.com/alekslesik/file-cloud/website/content"),
 	}
 
 	return app, nil
@@ -117,7 +118,6 @@ func (a *Application) Run() {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-
 
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)

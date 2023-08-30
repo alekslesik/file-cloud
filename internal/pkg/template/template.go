@@ -1,19 +1,24 @@
-package templates
+package template
 
 import (
 	"html/template"
-	"path"
 	"os"
+	"path"
 
 	"path/filepath"
 	"time"
 
 	"github.com/alekslesik/file-cloud/pkg/forms"
+	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 )
 
-type Templates struct {
-	TemplateData
+type cache map[string]*template.Template
+
+type Template struct {
+	t *TemplateData
+	c cache
+	l *logging.Logger
 }
 
 type TemplateData struct {
@@ -27,6 +32,13 @@ type TemplateData struct {
 	Files             []*models.File
 }
 
+func New(logger *logging.Logger) *Template {
+	return &Template{
+		t: new(TemplateData),
+		c: make(cache),
+		l: logger,
+	}
+}
 
 // Return nicely formatted string of time.Time object
 func HumanDate(t time.Time) string {
@@ -45,12 +57,23 @@ var functions = template.FuncMap{
 	"humanDate": HumanDate,
 }
 
-func NewTemplateCache(dir string) (map[string]*template.Template, error) {
+// Add template cache of files in dir
+func (t *Template) NewCache(dir string) cache {
+	cache, err := newCache(dir)
+	if err != nil {
+		t.l.Logger.Err(err).Msg("cannot create template cache")
+	}
+
+	t.c = cache
+	return t.c
+}
+
+func newCache(dir string) (cache, error) {
 	// init new map keeping cache
 	cache := map[string]*template.Template{}
 
 	// take all file from embed FS
-	readDir, err := os.ReadDir("html")
+	readDir, err := os.ReadDir(dir)
 	if err != nil {
 		return nil, err
 	}
@@ -75,3 +98,4 @@ func NewTemplateCache(dir string) (map[string]*template.Template, error) {
 
 	return cache, nil
 }
+

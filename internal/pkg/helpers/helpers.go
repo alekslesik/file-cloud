@@ -3,12 +3,13 @@ package helpers
 import (
 	"bytes"
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
-	"github.com/alekslesik/file-cloud/internal/pkg/templates"
+	template1 "github.com/alekslesik/file-cloud/internal/pkg/template"
+	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
 )
@@ -23,15 +24,16 @@ type ClientServerError interface {
 }
 
 type Helpers struct {
-	e ClientServerError
+	e             ClientServerError
+	l             logging.Logger
 	templateCache map[string]*template.Template
 }
 
-func New() Helpers {
+func New(logger logging.Logger) Helpers {
 	return Helpers{e: cserror.New()}
 }
 
-func (h Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td *templates.TemplateData) {
+func (h Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td *template1.TemplateData) {
 	// extract pattern depending "name"
 	ts, ok := h.templateCache[name]
 	if !ok {
@@ -57,9 +59,9 @@ func (h Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td 
 // struct, adds the current year to the CurrentYear field, and then returns
 // the pointer. Again, we're not using the *http.Request parameter at the
 // moment, but we will do later in the book.
-func (h Helpers) AddDefaultData(td *templates.TemplateData, r *http.Request) *templates.TemplateData {
+func (h Helpers) AddDefaultData(td *template1.TemplateData, r *http.Request) *template1.TemplateData {
 	if td == nil {
-		td = &templates.TemplateData{}
+		td = &template1.TemplateData{}
 	}
 
 	// Add current time.
