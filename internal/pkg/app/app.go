@@ -2,7 +2,6 @@ package app
 
 import (
 	"database/sql"
-	"embed"
 	"flag"
 	"fmt"
 	"html/template"
@@ -15,39 +14,34 @@ import (
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
 	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
+	"github.com/alekslesik/file-cloud/internal/pkg/middleware"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
+	"github.com/alekslesik/file-cloud/internal/pkg/session"
 	"github.com/alekslesik/file-cloud/internal/pkg/templates"
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
-	"github.com/golangcollege/sessions"
 )
 
 // Declare a string containing the application version number. Later in the book we'll
 // generate this automatically at build time, but for now we'll just store the version
 // number as a hard-coded global constant.
-const version = "1.0.0"
 
-//go:embed *
-var embedFS embed.FS
-
-type contextKey string
-
-var contextKeyUser = contextKey("user")
 
 type Application struct {
 	config        *config.Config
 	logger        *logging.Logger
 	endpoint      endpoint.Endpoint
 	router        *router.Router
-	session       *sessions.Session
+	middleware    middleware.Middleware
+	session       *session.Session
 	model         model.Model
 	templateCache map[string]*template.Template
 }
 
 func New() (*Application, error) {
 	// Declare an instance of the config struct.
-	var cfg = config.GetConfig()
+	cfg := config.GetConfig()
 	// Declare an instance of the logger struct.
 	logger := logging.GetLogger(cfg)
 	// Read the value of the port and env command-line flags into the config struct. We
@@ -77,23 +71,22 @@ func New() (*Application, error) {
 	}
 
 	// Initialize a new session manager
-	session := sessions.New([]byte(*secret))
 	// TODO add username to session //session = session.New([]byte(*userName))
-	session.Lifetime = 12 * time.Hour
-	session.Secure = true
-	session.SameSite = http.SameSiteStrictMode
-
+	session := session.New(secret)
 	helpers := helpers.New()
 	csErrors := cserror.New()
 	model := model.New(db)
-	endpoint := endpoint.New(helpers, csErrors, model)
+	middleware := middleware.New(session, &logger, csErrors, &model)
+	endpoint := endpoint.New(helpers, csErrors, model, *session)
+	router := router.New(endpoint, middleware, session)
 
 	// Initialization application struct
 	app := &Application{
 		config:        cfg,
 		logger:        &logger,
 		endpoint:      endpoint,
-		router:        nil,
+		router:        router,
+		middleware:    middleware,
 		session:       session,
 		model:         model,
 		templateCache: templateCache,
@@ -116,7 +109,7 @@ func openDB(dsn string) (*sql.DB, error) {
 func (a *Application) Run() {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", a.config.AppConfig.Port),
-		Handler: router.New().Route(),
+		Handler: a.router.Route(),
 		// TLSConfig: tlsConfig,
 		// Add Idle, Read and Write timeouts to the server
 		IdleTimeout:  time.Minute,
@@ -130,8 +123,6 @@ func (a *Application) Run() {
 	// pass in the paths to the TLS certificate and corresponding private key a
 	// the two parameters.
 	err := srv.ListenAndServe()
-	// certFile := appPath + "/src/github.com/sanjas12/new_CC/tls/cert.pem"
-	// keyFile := appPath + "/src/github.com/sanjas12/new_CC/tls/key.pem"
 
 	// err = srv.ListenAndServeTLS(certFile, keyFile)
 	log.Fatal().Msg(err.Error())

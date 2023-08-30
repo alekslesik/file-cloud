@@ -5,11 +5,35 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
+	"github.com/alekslesik/file-cloud/internal/pkg/model"
+	"github.com/alekslesik/file-cloud/internal/pkg/session"
+	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
 )
 
-func secureHeaders(next http.Handler) http.Handler {
+type contextKey string
+
+var contextKeyUser = contextKey("user")
+
+type Middleware struct {
+	ss *session.Session
+	lg *logging.Logger
+	er *cserror.CSError
+	md *model.Model
+}
+
+func New(ss *session.Session, lg *logging.Logger, er *cserror.CSError, md *model.Model) Middleware {
+	return Middleware{
+		ss: ss,
+		lg: lg,
+		er: er,
+		md: md,
+	}
+}
+
+func (m *Middleware) SecureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Frame-Options", "deny")
@@ -20,7 +44,7 @@ func secureHeaders(next http.Handler) http.Handler {
 
 // Create a NoSurf middleware function which uses a customized CSRF cookie with
 // the Secure, Path and HttpOnly flags set.
-func noSurf(next http.Handler) http.Handler {
+func (m *Middleware) NoSurf(next http.Handler) http.Handler {
 	csrfHandler := nosurf.New(next)
 	csrfHandler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
@@ -31,22 +55,22 @@ func noSurf(next http.Handler) http.Handler {
 	return csrfHandler
 }
 
-func (app *application) logRequest(next http.Handler) http.Handler {
+func (m *Middleware) LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		app.logger.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.RequestURI)
+		m.lg.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.RequestURI)
 
 		next.ServeHTTP(w, r)
 	})
 }
 
-func (app *application) recoverPanic(next http.Handler) http.Handler {
+func (m *Middleware) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
 				// if panic - set Connection close
 				w.Header().Set("Connection", "close")
 				// return 500 internal server response
-				app.serverError(w, fmt.Errorf("%s", err))
+				m.er.ServerError(w, fmt.Errorf("%s", err))
 			}
 		}()
 
@@ -70,11 +94,11 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 // 	})
 // }
 
-func (app *application) authenticate(next http.Handler) http.Handler {
+func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if a userID value exists in the session. If this *isn't
 		// present* then call the next handler in the chain as normal.
-		exist := app.session.Exists(r, "userID")
+		exist := m.ss.Exists(r, "userID")
 		if !exist {
 			next.ServeHTTP(w, r)
 			return
@@ -83,13 +107,13 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		// Fetch the details of the current user from the database.
 		// If no matching record is found, remove the (invalid) userID from
 		// their session and call the next handler in the chain as normal.
-		user, err := app.users.Get(app.session.GetInt(r, "userID"))
+		user, err := m.md.Users.Get(m.ss.GetInt(r, "userID"))
 		if err == models.ErrNoRecord {
-			app.session.Remove(r, "userID")
+			m.ss.Remove(r, "userID")
 			next.ServeHTTP(w, r)
 			return
 		} else if err != nil {
-			app.serverError(w, err)
+			m.er.ServerError(w, err)
 			return
 		}
 

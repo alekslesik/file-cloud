@@ -7,10 +7,16 @@ import (
 	"os"
 
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
+	"github.com/alekslesik/file-cloud/internal/pkg/session"
 	"github.com/alekslesik/file-cloud/internal/pkg/templates"
 	"github.com/alekslesik/file-cloud/pkg/forms"
 	"github.com/alekslesik/file-cloud/pkg/models"
 )
+
+// Declare a string containing the application version number. Later in the book we'll
+// generate this automatically at build time, but for now we'll just store the version
+// number as a hard-coded global constant.
+const version = "1.0.0"
 
 type Helpers interface {
 	Render(http.ResponseWriter, *http.Request, string, *templates.TemplateData)
@@ -24,28 +30,42 @@ type ClientServerError interface {
 }
 
 type Endpoint struct {
-	h Helpers
+	hp Helpers
 	er ClientServerError
-	m model.Model
+	md model.Model
+	ss session.Session
 }
 
-func New(h Helpers, er ClientServerError, m model.Model) Endpoint {
-	return Endpoint{h: h, er : er, m: m}
+func New(hp Helpers, er ClientServerError, md model.Model, ss session.Session) Endpoint {
+	return Endpoint{
+		hp: hp,
+		er : er,
+		md: md,
+		ss: ss,
+	}
 }
 
-func (e *Endpoint) home(w http.ResponseWriter, r *http.Request) {
-	e.h.Render(w, r, "home.page.html", &templates.TemplateData{})
+// Declare a handler which writes a plain-text response with information about the
+// application status, operating environment and version.
+func (e *Endpoint) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "status: available")
+	fmt.Fprintf(w, "version: %s\n", version)
+}
+
+
+func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
+	e.hp.Render(w, r, "home.page.html", &templates.TemplateData{})
 }
 
 // Login user GET /login.
-func (e *Endpoint) loginUserForm(w http.ResponseWriter, r *http.Request) {
-	e.h.Render(w, r, "login.page.html", &templates.TemplateData{
+func (e *Endpoint) UserLoginGet(w http.ResponseWriter, r *http.Request) {
+	e.hp.Render(w, r, "login.page.html", &templates.TemplateData{
 		Form: forms.New(nil),
 	})
 }
 
 // Login user POST /login.
-func (e *Endpoint) loginUser(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		e.er.ClientError(w, http.StatusBadRequest, fmt.Errorf("login user POST /login error"))
@@ -56,14 +76,14 @@ func (e *Endpoint) loginUser(w http.ResponseWriter, r *http.Request) {
 	// Check whether the credentials are valid. If they're not, add a generic
 	// message to the form failures map and re-display the login page.
 	form := forms.New(r.PostForm)
-	id, name, err := e.m.Users.Authenticate(form.Get("email"), form.Get("password"))
+	id, _, err := e.md.Users.Authenticate(form.Get("email"), form.Get("password"))
 	//TODO Add User name to app
-	app.UserName = name
+	// app.UserName = name
 
 	if err == models.ErrInvalidCredentials {
 		form.Errors.Add("generic", "Email or Password is incorrect")
 
-		e.h.Render(w, r, "login.page.html", &templates.TemplateData{Form: form})
+		e.hp.Render(w, r, "login.page.html", &templates.TemplateData{Form: form})
 		return
 	} else if err != nil {
 		e.er.ServerError(w, err)
@@ -71,22 +91,22 @@ func (e *Endpoint) loginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add the ID of the current user to the session
-	app.session.Put(r, "userID", id)
+	e.ss.Put(r, "userID", id)
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // Sign up user GET /user/signup
-func (e *Endpoint) signupUserForm(w http.ResponseWriter, r *http.Request) {
-	e.h.Render(w, r, "signup.page.html", &templates.TemplateData{
+func (e *Endpoint) UserSignupGet(w http.ResponseWriter, r *http.Request) {
+	e.hp.Render(w, r, "signup.page.html", &templates.TemplateData{
 		Form: forms.New(nil),
 	})
 
 }
 
 // Sign up user POST /user/signup
-func (e *Endpoint) signupUser(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	// Parse the form data.
 	err := r.ParseForm()
 	if err != nil {
@@ -102,7 +122,7 @@ func (e *Endpoint) signupUser(w http.ResponseWriter, r *http.Request) {
 
 	// If there are any errors, redisplay the signup form.
 	if !form.Valid() {
-		e.h.Render(w, r, "signup.page.html", &templates.TemplateData{
+		e.hp.Render(w, r, "signup.page.html", &templates.TemplateData{
 			Form: form,
 		})
 		return
@@ -110,10 +130,10 @@ func (e *Endpoint) signupUser(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
-	err = e.m.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	err = e.md.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
 	if err == models.ErrDuplicateEmail {
 		form.Errors.Add("email", "Address is already in use")
-		e.h.Render(w, r, "signup.page.html", &templates.TemplateData{
+		e.hp.Render(w, r, "signup.page.html", &templates.TemplateData{
 			Form: form,
 		})
 		return
@@ -124,32 +144,32 @@ func (e *Endpoint) signupUser(w http.ResponseWriter, r *http.Request) {
 
 	// Otherwise add a confirmation flash message to the session confirming
 	// their signup worked and asking them to log in.
-	app.session.Put(r, "flash", "Your signup was successful. Please log in.")
+	e.ss.Put(r, "flash", "Your signup was successful. Please log in.")
 
 	// GET
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
 }
 
 // Logout user GET /user/logout
-func (e *Endpoint) logoutUser(w http.ResponseWriter, r *http.Request) {
-	// Remove iserID from session.
-	app.session.Remove(r, "userID")
+func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
+	// Remove userID from session.
+	e.ss.Remove(r, "userID")
 	// Add flash to session.
-	app.session.Put(r, "flash", "You've been logged out successfully!")
+	e.ss.Put(r, "flash", "You've been logged out successfully!")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
 // Files page GET /files
-func (e *Endpoint) uploadFileForm(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 	// check user authenticate
-	if e.h.AuthenticatedUser(r) != nil {
-		files, err := app.files.All()
+	if e.hp.AuthenticatedUser(r) != nil {
+		files, err := e.md.Files.All()
 		if err != nil {
 			e.er.ServerError(w, err)
 		}
 
-		e.h.Render(w, r, "files.page.html", &templates.TemplateData{
+		e.hp.Render(w, r, "files.page.html", &templates.TemplateData{
 			Files: files,
 		})
 	} else {
@@ -158,7 +178,7 @@ func (e *Endpoint) uploadFileForm(w http.ResponseWriter, r *http.Request) {
 }
 
 // Files page POST /files
-func (e *Endpoint) uploadFile(w http.ResponseWriter, r *http.Request) {
+func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 	// Parse request body
 	r.ParseMultipartForm(32 << 20)
 
@@ -174,7 +194,7 @@ func (e *Endpoint) uploadFile(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
-	_, err = e.m.Files.Insert(fileName, fileType, fileSize)
+	_, err = e.md.Files.Insert(fileName, fileType, fileSize)
 	if err != nil {
 		e.er.ServerError(w, err)
 		return
