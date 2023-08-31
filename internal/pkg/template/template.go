@@ -13,11 +13,11 @@ import (
 	"github.com/alekslesik/file-cloud/pkg/models"
 )
 
-type cache map[string]*template.Template
+type Cache map[string]*template.Template
 
 type Template struct {
 	t *TemplateData
-	c cache
+	c Cache
 	l *logging.Logger
 }
 
@@ -35,7 +35,7 @@ type TemplateData struct {
 func New(logger *logging.Logger) *Template {
 	return &Template{
 		t: new(TemplateData),
-		c: make(cache),
+		c: make(Cache),
 		l: logger,
 	}
 }
@@ -58,7 +58,7 @@ var functions = template.FuncMap{
 }
 
 // Add template cache of files in dir
-func (t *Template) NewCache(dir string) cache {
+func (t *Template) NewCache(dir string) Cache {
 	cache, err := newCache(dir)
 	if err != nil {
 		t.l.Logger.Err(err).Msg("cannot create template cache")
@@ -68,7 +68,7 @@ func (t *Template) NewCache(dir string) cache {
 	return t.c
 }
 
-func newCache(dir string) (cache, error) {
+func newCache(dir string) (Cache, error) {
 	// init new map keeping cache
 	cache := map[string]*template.Template{}
 
