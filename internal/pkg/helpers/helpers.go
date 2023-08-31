@@ -2,13 +2,15 @@ package helpers
 
 import (
 	"bytes"
+	"database/sql"
 	"fmt"
+	"html/template"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
-	"github.com/alekslesik/file-cloud/internal/pkg/templates"
+	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
+	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
 )
@@ -23,19 +25,21 @@ type ClientServerError interface {
 }
 
 type Helpers struct {
-	e ClientServerError
-	templateCache map[string]*template.Template
+	er ClientServerError
+	lg logging.Logger
+	tp map[string]*template.Template
 }
 
-func New() Helpers {
-	return Helpers{e: cserror.New()}
+func New(logger logging.Logger) *Helpers {
+	return &Helpers{er: cserror.New()}
 }
 
-func (h Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td *templates.TemplateData) {
+func (h *Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td *tmpl.TemplateData) {
 	// extract pattern depending "name"
-	ts, ok := h.templateCache[name]
+	ts, ok := h.tp[name]
 	if !ok {
-		h.e.ServerError(w, fmt.Errorf("pattern %s not exist", name))
+		h.lg.Error().Msg("template render error")
+		h.er.ServerError(w, fmt.Errorf("pattern %s not exist", name))
 		return
 	}
 
@@ -45,7 +49,8 @@ func (h Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td 
 	// write template to the buffer, instead straight to http.ResponseWriter
 	err := ts.Execute(buf, h.AddDefaultData(td, r))
 	if err != nil {
-		h.e.ServerError(w, fmt.Errorf("template %v not executed", ts))
+		h.lg.Error().Msg("template execute error")
+		h.er.ServerError(w, fmt.Errorf("template %v not executed", ts))
 		return
 	}
 
@@ -57,9 +62,9 @@ func (h Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td 
 // struct, adds the current year to the CurrentYear field, and then returns
 // the pointer. Again, we're not using the *http.Request parameter at the
 // moment, but we will do later in the book.
-func (h Helpers) AddDefaultData(td *templates.TemplateData, r *http.Request) *templates.TemplateData {
+func (h *Helpers) AddDefaultData(td *tmpl.TemplateData, r *http.Request) *tmpl.TemplateData {
 	if td == nil {
-		td = &templates.TemplateData{}
+		td = &tmpl.TemplateData{}
 	}
 
 	// Add current time.
@@ -78,10 +83,25 @@ func (h Helpers) AddDefaultData(td *templates.TemplateData, r *http.Request) *te
 }
 
 // Return userID ID from session
-func (h Helpers) AuthenticatedUser(r *http.Request) *models.User {
+func (h *Helpers) AuthenticatedUser(r *http.Request) *models.User {
 	user, ok := r.Context().Value(contextKeyUser).(*models.User)
 	if !ok {
 		return nil
 	}
 	return user
+}
+
+//
+func (h *Helpers) OpenDB(dsn string) (*sql.DB, error) {
+	const op = "helpers.OpenDB"
+	db, err := sql.Open("mysql", "dsn")
+	if err != nil {
+		h.lg.Err(err).Msgf("%s: open db", op)
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		h.lg.Err(err).Msgf("%s: db ping", op)
+		return nil, err
+	}
+	return db, nil
 }

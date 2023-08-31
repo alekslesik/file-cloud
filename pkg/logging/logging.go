@@ -1,9 +1,10 @@
 package logging
 
 import (
-	"github.com/alekslesik/file-cloud/pkg/config"
 	"os"
 	"time"
+
+	"github.com/alekslesik/file-cloud/pkg/config"
 
 	// "github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
@@ -15,7 +16,7 @@ type Logger struct {
 }
 
 // Return new zerologer
-func GetLogger(cfg *config.Config) Logger {
+func New(cfg *config.Config) Logger {
 
 	////logging to file
 	// file, err := os.OpenFile(

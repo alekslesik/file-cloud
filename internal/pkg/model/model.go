@@ -7,8 +7,8 @@ import (
 	"github.com/alekslesik/file-cloud/pkg/models/mysql"
 )
 
-func New(db *sql.DB) Model {
-	return Model{
+func New(db *sql.DB) *Model {
+	return &Model{
 		Files: &mysql.FileModel{DB: db},
 		Users: &mysql.UserModel{DB: db},
 	}

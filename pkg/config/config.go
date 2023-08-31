@@ -26,7 +26,7 @@ type Config struct {
 		Compress   bool   `env:"LOG_COMPRESS" env-default:"true"`
 	}
 	MySQL struct {
-		DSN string `env:"WEB_DB_DSN" env-default:"web:Todor1990///@/file_cloud?parseTime=true"`
+		DSN string `env:"WEB_DB_DSN" env-default:"web:Todor19901///@/file_cloud?parseTime=true"`
 	}
 
 	// IsDebug       bool `env:"IS_DEBUG" env-default:"false"`
@@ -37,7 +37,7 @@ var instance *Config
 var once sync.Once
 
 // Return instance of config
-func GetConfig() *Config {
+func New() *Config {
 	once.Do(func() {
 		instance = &Config{}
 
