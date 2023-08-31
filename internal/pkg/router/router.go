@@ -11,12 +11,12 @@ import (
 )
 
 type Router struct {
-	ep endpoint.Endpoint
-	md middleware.Middleware
+	ep *endpoint.Endpoint
+	md *middleware.Middleware
 	ss *session.Session
 }
 
-func New(ep endpoint.Endpoint, md middleware.Middleware, ss *session.Session) *Router {
+func New(ep *endpoint.Endpoint, md *middleware.Middleware, ss *session.Session) *Router {
 	return &Router{
 		ep: ep,
 		md: md,

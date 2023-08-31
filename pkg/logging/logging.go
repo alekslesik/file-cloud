@@ -16,7 +16,7 @@ type Logger struct {
 }
 
 // Return new zerologer
-func New(cfg *config.Config) Logger {
+func New(cfg *config.Config) *Logger {
 
 	////logging to file
 	// file, err := os.OpenFile(
@@ -37,5 +37,5 @@ func New(cfg *config.Config) Logger {
 		Caller().
 		Logger()
 
-	return Logger{z}
+	return &Logger{z}
 }

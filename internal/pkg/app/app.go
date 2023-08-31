@@ -12,13 +12,10 @@ import (
 	"time"
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
-	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/internal/pkg/middleware"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
-	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 )
@@ -30,56 +27,51 @@ import (
 type Application struct {
 	config     *config.Config
 	logger     *logging.Logger
-	endpoint   endpoint.Endpoint
+	endpoint   *endpoint.Endpoint
 	router     *router.Router
-	middleware middleware.Middleware
+	middleware *middleware.Middleware
 	session    *session.Session
 	model      *model.Model
 	tmplCache  map[string]*template.Template
 }
 
 func New() (*Application, error) {
-	
 	const op = "app.New()"
 
-	// Declare an instance of the config struct.
-	cfg := config.New()
-	// Declare an instance of the logger struct.
-	logger := logging.New(cfg)
+	cfg := loadConfig()
+	logger := initLogger(cfg)
 
 	// https
 	// flag.IntVar(&cfg.port, "port", 443, "API server port")
 	flag.StringVar(&cfg.AppConfig.Env, "env", "development", "Environment (development|staging|production)")
 	// http
 	flag.IntVar(&cfg.AppConfig.Port, "port", 80, "API server port")
-	dsn := flag.String("dsn", cfg.MySQL.DSN, "Name SQL data Source")
-	secret := flag.String("secret", "s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge", "Secret")
+	cfg.MySQL.DSN = flag.String("dsn", *cfg.MySQL.DSN, "Name SQL data Source")
 	flag.Parse()
 
 	// Initialize a new session manager
 	// TODO add username to session //session = session.New([]byte(*userName))
-	session := session.New(secret)
-	helpers := helpers.New(logger)
-	csErrors := cserror.New()
+	session := initSession(cfg)
+	helpers := initHelpers(logger)
+	csErrors := initCSError()
 
 	// Open DB connection pull
-	db, err := helpers.OpenDB(*dsn)
+	db, err := initDB(helpers, cfg)
 	if err != nil {
 		logger.Err(err).Msgf("%s > open db", op)
 		return nil, err
 	}
-	defer db.Close()
 
-	model := model.New(db)
-	middleware := middleware.New(session, logger, csErrors, model)
-	endpoint := endpoint.New(helpers, csErrors, model, *session)
-	router := router.New(endpoint, middleware, session)
-	tmplCache := tmpl.New(&logger).NewCache("/root/go/src/github.com/alekslesik/file-cloud/website/content")
+	model := initModel(db)
+	middleware := initMiddleware(session, logger, csErrors, model)
+	endpoint := initEndpoint(helpers, csErrors, model, session)
+	router := initRouter(endpoint, middleware, session)
+	tmplCache := initTemplateCache(logger)
 
 	// Initialization application struct
 	app := &Application{
 		config:     cfg,
-		logger:     &logger,
+		logger:     logger,
 		endpoint:   endpoint,
 		router:     router,
 		middleware: middleware,
@@ -90,6 +82,8 @@ func New() (*Application, error) {
 
 	return app, nil
 }
+
+
 
 func (a *Application) Run() error {
 	const op = "app.Run()"

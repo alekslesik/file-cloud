@@ -26,7 +26,10 @@ type Config struct {
 		Compress   bool   `env:"LOG_COMPRESS" env-default:"true"`
 	}
 	MySQL struct {
-		DSN string `env:"WEB_DB_DSN" env-default:"web:Todor19901///@/file_cloud?parseTime=true"`
+		DSN *string `env:"WEB_DB_DSN" env-default:"web:Todor19901///@/file_cloud?parseTime=true"`
+	}
+	Session struct {
+		Secret string `env:"SESSION_SECRET" env-default:"s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"`
 	}
 
 	// IsDebug       bool `env:"IS_DEBUG" env-default:"false"`
