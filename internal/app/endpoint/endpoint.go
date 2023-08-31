@@ -32,11 +32,11 @@ type ClientServerError interface {
 type Endpoint struct {
 	hp Helpers
 	er ClientServerError
-	md model.Model
+	md *model.Model
 	ss session.Session
 }
 
-func New(hp Helpers, er ClientServerError, md model.Model, ss session.Session) Endpoint {
+func New(hp Helpers, er ClientServerError, md *model.Model, ss session.Session) Endpoint {
 	return Endpoint{
 		hp: hp,
 		er: er,

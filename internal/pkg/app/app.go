@@ -1,7 +1,6 @@
 package app
 
 import (
-	"database/sql"
 	"flag"
 	"fmt"
 	"html/template"
@@ -29,24 +28,23 @@ import (
 // number as a hard-coded global constant.
 
 type Application struct {
-	config        *config.Config
-	logger        *logging.Logger
-	endpoint      endpoint.Endpoint
-	router        *router.Router
-	middleware    middleware.Middleware
-	session       *session.Session
-	model         model.Model
-	templateCache map[string]*template.Template
+	config     *config.Config
+	logger     *logging.Logger
+	endpoint   endpoint.Endpoint
+	router     *router.Router
+	middleware middleware.Middleware
+	session    *session.Session
+	model      *model.Model
+	tmplCache  map[string]*template.Template
 }
 
 func New() (*Application, error) {
+	const op = "app.New()"
+
 	// Declare an instance of the config struct.
-	cfg := config.GetConfig()
+	cfg := config.New()
 	// Declare an instance of the logger struct.
-	logger := logging.GetLogger(cfg)
-	// Read the value of the port and env command-line flags into the config struct. We
-	// default to using the port number 4000 and the environment "development" if no
-	// corresponding flags are provided.
+	logger := logging.New(cfg)
 
 	// https
 	// flag.IntVar(&cfg.port, "port", 443, "API server port")
@@ -64,51 +62,38 @@ func New() (*Application, error) {
 	csErrors := cserror.New()
 
 	// Open DB connection pull
-	db, err := openDB(*dsn)
+	db, err := helpers.OpenDB(*dsn)
 	if err != nil {
-		logger.Fatal().Err(err)
+		logger.Err(err).Msgf("%s > open db", op)
+		return nil, err
 	}
 	defer db.Close()
 
 	model := model.New(db)
-	middleware := middleware.New(session, &logger, csErrors, &model)
+	middleware := middleware.New(session, logger, csErrors, model)
 	endpoint := endpoint.New(helpers, csErrors, model, *session)
 	router := router.New(endpoint, middleware, session)
-	template := tmpl.New(&logger)
-
-	// Initialize new cache pattern
-	// templateCache, err := template1.NewTemplateCache("/root/go/src/github.com/alekslesik/file-cloud/website/content")
-	// if err != nil {
-	// 	logger.Fatal().Msgf("error template cache: %s", err)
-	// }
+	tmplCache := tmpl.New(&logger).NewCache("/root/go/src/github.com/alekslesik/file-cloud/website/content")
 
 	// Initialization application struct
 	app := &Application{
-		config:        cfg,
-		logger:        &logger,
-		endpoint:      endpoint,
-		router:        router,
-		middleware:    middleware,
-		session:       session,
-		model:         model,
-		templateCache: template.NewCache("/root/go/src/github.com/alekslesik/file-cloud/website/content"),
+		config:     cfg,
+		logger:     &logger,
+		endpoint:   endpoint,
+		router:     router,
+		middleware: middleware,
+		session:    session,
+		model:      model,
+		tmplCache:  tmplCache,
 	}
 
 	return app, nil
 }
 
-func openDB(dsn string) (*sql.DB, error) {
-	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
-	}
-	if err = db.Ping(); err != nil {
-		return nil, err
-	}
-	return db, nil
-}
+func (a *Application) Run() error {
+	const op = "app.Run()"
+	var serverErr error
 
-func (a *Application) Run() {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", a.config.AppConfig.Port),
 		Handler: a.router.Route(),
@@ -124,7 +109,8 @@ func (a *Application) Run() {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
-			a.logger.Error().Msg("failed to start server")
+			serverErr = err
+			a.logger.Err(err).Msgf("%s > failed to start server", op)
 		}
 	}()
 
@@ -132,4 +118,6 @@ func (a *Application) Run() {
 
 	<-done
 	a.logger.Info().Msg("server stopped")
+
+	return serverErr
 }

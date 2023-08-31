@@ -6,10 +6,15 @@ import (
 )
 
 func main() {
+	const op = "main()"
+
 	app, err  := app.New()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("%s > create app error: %v", op, err)
 	}
 
-	app.Run()
+	err = app.Run()
+	if err != nil {
+		log.Fatalf("%s > run app error: %v", op, err)
+	}
 }
