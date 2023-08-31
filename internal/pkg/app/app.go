@@ -39,6 +39,7 @@ type Application struct {
 }
 
 func New() (*Application, error) {
+	
 	const op = "app.New()"
 
 	// Declare an instance of the config struct.
