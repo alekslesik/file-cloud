@@ -10,9 +10,9 @@ import (
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
+	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
-	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
 )
 
 // Declare an instance of the config struct
@@ -42,7 +42,8 @@ func initCSError() *cserror.CSError {
 
 // Data base initialization
 func initDB(helpers *helpers.Helpers, cfg *config.Config) (*sql.DB, error) {
-	db, err := helpers.OpenDB(*cfg.MySQL.DSN)
+	// db, err := helpers.OpenDB(cfg.MySQL.DSN)
+	db, err := helpers.OpenDB("web:Todor1990///@tcp(localhost:3306)/file_cloud")
 	if err != nil {
 		return nil, err
 	}

@@ -18,18 +18,18 @@ type contextKey string
 var contextKeyUser = contextKey("user")
 
 type Middleware struct {
-	ss *session.Session
-	lg *logging.Logger
+	ses *session.Session
+	log *logging.Logger
 	er *cserror.CSError
-	md *model.Model
+	mdl *model.Model
 }
 
 func New(ss *session.Session, lg *logging.Logger, er *cserror.CSError, md *model.Model) *Middleware {
 	return &Middleware{
-		ss: ss,
-		lg: lg,
+		ses: ss,
+		log: lg,
 		er: er,
-		md: md,
+		mdl: md,
 	}
 }
 
@@ -57,7 +57,7 @@ func (m *Middleware) NoSurf(next http.Handler) http.Handler {
 
 func (m *Middleware) LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m.lg.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.RequestURI)
+		m.log.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.RequestURI)
 
 		next.ServeHTTP(w, r)
 	})
@@ -98,7 +98,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if a userID value exists in the session. If this *isn't
 		// present* then call the next handler in the chain as normal.
-		exist := m.ss.Exists(r, "userID")
+		exist := m.ses.Exists(r, "userID")
 		if !exist {
 			next.ServeHTTP(w, r)
 			return
@@ -107,9 +107,9 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		// Fetch the details of the current user from the database.
 		// If no matching record is found, remove the (invalid) userID from
 		// their session and call the next handler in the chain as normal.
-		user, err := m.md.Users.Get(m.ss.GetInt(r, "userID"))
+		user, err := m.mdl.Users.Get(m.ses.GetInt(r, "userID"))
 		if err == models.ErrNoRecord {
-			m.ss.Remove(r, "userID")
+			m.ses.Remove(r, "userID")
 			next.ServeHTTP(w, r)
 			return
 		} else if err != nil {

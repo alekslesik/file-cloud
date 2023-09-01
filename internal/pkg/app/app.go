@@ -38,25 +38,25 @@ type Application struct {
 func New() (*Application, error) {
 	const op = "app.New()"
 
-	cfg := loadConfig()
-	logger := initLogger(cfg)
+	config := loadConfig()
+	logger := initLogger(config)
 
 	// https
 	// flag.IntVar(&cfg.port, "port", 443, "API server port")
-	flag.StringVar(&cfg.AppConfig.Env, "env", "development", "Environment (development|staging|production)")
+	flag.StringVar(&config.AppConfig.Env, "env", "development", "Environment (development|staging|production)")
 	// http
-	flag.IntVar(&cfg.AppConfig.Port, "port", 80, "API server port")
-	cfg.MySQL.DSN = flag.String("dsn", *cfg.MySQL.DSN, "Name SQL data Source")
+	flag.IntVar(&config.AppConfig.Port, "port", 80, "API server port")
+	config.MySQL.DSN = *flag.String("dsn", config.MySQL.DSN, "Name SQL data Source")
 	flag.Parse()
 
 	// Initialize a new session manager
 	// TODO add username to session //session = session.New([]byte(*userName))
-	session := initSession(cfg)
+	session := initSession(config)
 	helpers := initHelpers(logger)
 	csErrors := initCSError()
 
 	// Open DB connection pull
-	db, err := initDB(helpers, cfg)
+	db, err := initDB(helpers, config)
 	if err != nil {
 		logger.Err(err).Msgf("%s > open db", op)
 		return nil, err
@@ -70,7 +70,7 @@ func New() (*Application, error) {
 
 	// Initialization application struct
 	app := &Application{
-		config:     cfg,
+		config:     config,
 		logger:     logger,
 		endpoint:   endpoint,
 		router:     router,
@@ -82,8 +82,6 @@ func New() (*Application, error) {
 
 	return app, nil
 }
-
-
 
 func (a *Application) Run() error {
 	const op = "app.Run()"

@@ -30,9 +30,14 @@ func New(cfg *config.Config) *Logger {
 
 	// defer file.Close()
 
+	// createMsg := func () string {
+	// 	return "createMsg"
+	// }
+
 	z := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
 		Level(zerolog.TraceLevel).
 		With().
+		Stack().
 		Timestamp().
 		Caller().
 		Logger()

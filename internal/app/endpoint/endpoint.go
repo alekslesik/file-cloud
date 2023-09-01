@@ -69,7 +69,6 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
 		e.er.ClientError(w, http.StatusBadRequest, fmt.Errorf("login user POST /login error"))
-		// app.clientError(w, http.StatusBadRequest, fmt.Errorf("login user POST /login error"))
 		return
 	}
 

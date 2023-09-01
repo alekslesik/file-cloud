@@ -26,8 +26,8 @@ type ClientServerError interface {
 
 type Helpers struct {
 	er ClientServerError
-	lg logging.Logger
-	tp map[string]*template.Template
+	log logging.Logger
+	tmp map[string]*template.Template
 }
 
 func New(logger logging.Logger) *Helpers {
@@ -35,10 +35,12 @@ func New(logger logging.Logger) *Helpers {
 }
 
 func (h *Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td *tmpl.TemplateData) {
+	const op = "helpers.Render()"
+
 	// extract pattern depending "name"
-	ts, ok := h.tp[name]
+	ts, ok := h.tmp[name]
 	if !ok {
-		h.lg.Error().Msg("template render error")
+		h.log.Error().Msgf("%s > pattern %s not exist", op, name)
 		h.er.ServerError(w, fmt.Errorf("pattern %s not exist", name))
 		return
 	}
@@ -49,7 +51,7 @@ func (h *Helpers) Render(w http.ResponseWriter, r *http.Request, name string, td
 	// write template to the buffer, instead straight to http.ResponseWriter
 	err := ts.Execute(buf, h.AddDefaultData(td, r))
 	if err != nil {
-		h.lg.Error().Msg("template execute error")
+		h.log.Error().Msgf("%s > template %v not executed", op, ts)
 		h.er.ServerError(w, fmt.Errorf("template %v not executed", ts))
 		return
 	}
@@ -93,14 +95,14 @@ func (h *Helpers) AuthenticatedUser(r *http.Request) *models.User {
 
 //
 func (h *Helpers) OpenDB(dsn string) (*sql.DB, error) {
-	const op = "helpers.OpenDB"
+	const op = "helpers.OpenDB()"
 	db, err := sql.Open("mysql", "dsn")
 	if err != nil {
-		h.lg.Err(err).Msgf("%s: open db", op)
+		h.log.Err(err).Msgf("%s: open db", op)
 		return nil, err
 	}
 	if err = db.Ping(); err != nil {
-		h.lg.Err(err).Msgf("%s: db ping", op)
+		h.log.Err(err).Msgf("%s: db ping", op)
 		return nil, err
 	}
 	return db, nil

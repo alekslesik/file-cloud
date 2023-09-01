@@ -16,9 +16,9 @@ import (
 type Cache map[string]*template.Template
 
 type Template struct {
-	t *TemplateData
-	c Cache
-	l *logging.Logger
+	tmpl *TemplateData
+	cache Cache
+	log *logging.Logger
 }
 
 type TemplateData struct {
@@ -34,9 +34,9 @@ type TemplateData struct {
 
 func New(logger *logging.Logger) *Template {
 	return &Template{
-		t: new(TemplateData),
-		c: make(Cache),
-		l: logger,
+		tmpl: new(TemplateData),
+		cache: make(Cache),
+		log: logger,
 	}
 }
 
@@ -59,28 +59,33 @@ var functions = template.FuncMap{
 
 // Add template cache of files in dir
 func (t *Template) NewCache(dir string) Cache {
-	cache, err := newCache(dir)
+	const op = "template.NewCache()"
+
+	cache, err := t.newCache(dir)
 	if err != nil {
-		t.l.Logger.Err(err).Msg("cannot create template cache")
+		t.log.Err(err).Msgf("%s: open db", op)
 	}
 
-	t.c = cache
-	return t.c
+	t.cache = cache
+	return t.cache
 }
 
-func newCache(dir string) (Cache, error) {
+func (t *Template) newCache(dir string) (Cache, error) {
+	const op = "template.newCache()"
+
 	// init new map keeping cache
 	cache := map[string]*template.Template{}
 
-	// take all file from embed FS
-	readDir, err := os.ReadDir(dir)
+	// take all file from FS
+	entries, err := os.ReadDir(dir)
 	if err != nil {
+		t.log.Err(err).Msgf("%s: reding directory", op)
 		return nil, err
 	}
 
-	for _, page := range readDir {
+	for _, e := range entries {
 		// get filename from filepath
-		name := filepath.Base(page.Name())
+		name := filepath.Base(e.Name())
 
 		lp := path.Join(dir, "*.layout.html")
 		fp := path.Join(dir, name)
@@ -88,6 +93,7 @@ func newCache(dir string) (Cache, error) {
 
 		ts, err := template.New(name).Funcs(functions).ParseFiles(dir, lp, fp, pp)
 		if err != nil {
+			t.log.Err(err).Msgf("%s: parse files", op)
 			return nil, err
 		}
 
