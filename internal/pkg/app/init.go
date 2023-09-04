@@ -32,7 +32,7 @@ func initSession(cfg *config.Config) *session.Session {
 
 // Declare an instance of the helpers struct
 func initHelpers(logger *logging.Logger) *helpers.Helpers {
-	return helpers.New(*logger)
+	return helpers.New(logger)
 }
 
 // Declare an instance of the config struct
@@ -63,8 +63,8 @@ func initMiddleware(session *session.Session, logger *logging.Logger, CSError *c
 }
 
 // Declare an instance of the config struct
-func initEndpoint(helpers *helpers.Helpers, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
-	return endpoint.New(helpers, CSError, model, *session)
+func initEndpoint(template tmpl.Template, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
+	return endpoint.New(&template, CSError, model, *session)
 }
 
 // Declare an instance of the config struct
@@ -74,6 +74,6 @@ func initRouter(endpoint *endpoint.Endpoint, middleware *middleware.Middleware, 
 
 // Declare an instance of the config struct
 // TODO figure out with path
-func initTemplateCache(logger *logging.Logger) tmpl.Cache {
+func initTemplate(logger *logging.Logger) *tmpl.Template {
 	return tmpl.New(logger).NewCache("/root/go/src/github.com/alekslesik/file-cloud/website/content")
 }
