@@ -2,8 +2,6 @@ package template
 
 import (
 	"html/template"
-	// "os"
-	// "path"
 
 	"path/filepath"
 	"time"
@@ -78,9 +76,8 @@ func (t *Template) newCache(dir string) (Cache, error) {
 
 	// use func Glob to get all filepathes slice with '.page.html' ext
 	entries, err := filepath.Glob(filepath.Join(dir, "*.page.html"))
-	// entries, err := os.ReadDir(dir)
 	if err != nil {
-		t.log.Err(err).Msgf("%s: reading directory", op)
+		t.log.Err(err).Msgf("%s: glob *.page.html in dir %v", op, dir)
 		return nil, err
 	}
 
@@ -93,17 +90,20 @@ func (t *Template) newCache(dir string) (Cache, error) {
 		// create an empty template set, use the Funcs() method t
 		ts, err := template.New(name).Funcs(functions).ParseFiles(e)
 		if err != nil {
+			t.log.Err(err).Msgf("%s: template create", op)
 			return nil, err
 		}
 
 		// use ParseGlob to add all frame patterns (base.layout.html)
 		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.html"))
 		if err != nil {
+			t.log.Err(err).Msgf("%s: glob *.layout.html to template", op)
 			return nil, err
 		}
 
 		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.html"))
 		if err != nil {
+			t.log.Err(err).Msgf("%s: glob *.partial.html to template", op)
 			return nil, err
 		}
 
