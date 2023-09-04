@@ -3,7 +3,6 @@ package app
 import (
 	"flag"
 	"fmt"
-	"html/template"
 	"os"
 	"os/signal"
 	"syscall"
@@ -16,6 +15,7 @@ import (
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
+	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 )
@@ -32,7 +32,7 @@ type Application struct {
 	middleware *middleware.Middleware
 	session    *session.Session
 	model      *model.Model
-	tmplCache  map[string]*template.Template
+	template   *tmpl.Template
 }
 
 func New() (*Application, error) {
@@ -62,11 +62,11 @@ func New() (*Application, error) {
 		return nil, err
 	}
 
+	template := initTemplate(logger)
 	model := initModel(db)
 	middleware := initMiddleware(session, logger, csErrors, model)
-	endpoint := initEndpoint(helpers, csErrors, model, session)
+	endpoint := initEndpoint(*template, csErrors, model, session)
 	router := initRouter(endpoint, middleware, session)
-	tmplCache := initTemplateCache(logger)
 
 	// Initialization application struct
 	app := &Application{
@@ -77,7 +77,7 @@ func New() (*Application, error) {
 		middleware: middleware,
 		session:    session,
 		model:      model,
-		tmplCache:  tmplCache,
+		template:   template,
 	}
 
 	return app, nil
