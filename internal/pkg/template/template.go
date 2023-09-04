@@ -2,8 +2,8 @@ package template
 
 import (
 	"html/template"
-	"os"
-	"path"
+	// "os"
+	// "path"
 
 	"path/filepath"
 	"time"
@@ -76,24 +76,34 @@ func (t *Template) newCache(dir string) (Cache, error) {
 	// init new map keeping cache
 	cache := map[string]*template.Template{}
 
-	// take all file from FS
-	entries, err := os.ReadDir(dir)
+	// use func Glob to get all filepathes slice with '.page.html' ext
+	entries, err := filepath.Glob(filepath.Join(dir, "*.page.html"))
+	// entries, err := os.ReadDir(dir)
 	if err != nil {
-		t.log.Err(err).Msgf("%s: reding directory", op)
+		t.log.Err(err).Msgf("%s: reading directory", op)
 		return nil, err
 	}
 
 	for _, e := range entries {
 		// get filename from filepath
-		name := filepath.Base(e.Name())
+		name := filepath.Base(e)
 
-		lp := path.Join(dir, "*.layout.html")
-		fp := path.Join(dir, name)
-		pp := path.Join(dir, "*.partial.html")
-
-		ts, err := template.New(name).Funcs(functions).ParseFiles(dir, lp, fp, pp)
+		// The template.FuncMap must be registered with the template set before
+		// call the ParseFiles() method. This means we have to use template.New
+		// create an empty template set, use the Funcs() method t
+		ts, err := template.New(name).Funcs(functions).ParseFiles(e)
 		if err != nil {
-			t.log.Err(err).Msgf("%s: parse files", op)
+			return nil, err
+		}
+
+		// use ParseGlob to add all frame patterns (base.layout.html)
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.layout.html"))
+		if err != nil {
+			return nil, err
+		}
+
+		ts, err = ts.ParseGlob(filepath.Join(dir, "*.partial.html"))
+		if err != nil {
 			return nil, err
 		}
 
