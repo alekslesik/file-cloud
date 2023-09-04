@@ -1,7 +1,10 @@
 package template
 
 import (
+	"bytes"
+	"fmt"
 	"html/template"
+	"net/http"
 
 	"path/filepath"
 	"time"
@@ -9,7 +12,14 @@ import (
 	"github.com/alekslesik/file-cloud/pkg/forms"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
+	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
+	"github.com/justinas/nosurf"
 )
+
+type ClientServerError interface {
+	ClientError(http.ResponseWriter, int, error)
+	ServerError(http.ResponseWriter, error)
+}
 
 type Cache map[string]*template.Template
 
@@ -17,6 +27,7 @@ type Template struct {
 	tmpl  *TemplateData
 	cache Cache
 	log   *logging.Logger
+	er ClientServerError
 }
 
 type TemplateData struct {
@@ -56,7 +67,7 @@ var functions = template.FuncMap{
 }
 
 // Add template cache of files in dir
-func (t *Template) NewCache(dir string) Cache {
+func (t *Template) NewCache(dir string) *Template {
 	const op = "template.NewCache()"
 
 	cache, err := t.newCache(dir)
@@ -65,7 +76,7 @@ func (t *Template) NewCache(dir string) Cache {
 	}
 
 	t.cache = cache
-	return t.cache
+	return t
 }
 
 func (t *Template) newCache(dir string) (Cache, error) {
@@ -113,4 +124,54 @@ func (t *Template) newCache(dir string) (Cache, error) {
 	}
 
 	return cache, nil
+}
+
+func (t *Template) Render(w http.ResponseWriter, r *http.Request, name string, td *TemplateData) {
+	const op = "helpers.Render()"
+
+	// extract pattern depending "name"
+	ts, ok := t.cache[name]
+	if !ok {
+		t.log.Error().Msgf("%s > pattern %s not exist", op, name)
+		t.er.ServerError(w, fmt.Errorf("pattern %s not exist", name))
+		return
+	}
+
+	// initialize a new buffer
+	buf := new(bytes.Buffer)
+
+	// write template to the buffer, instead straight to http.ResponseWriter
+	err := ts.Execute(buf, AddDefaultData(td, r))
+	if err != nil {
+		t.log.Error().Msgf("%s > template %v not executed", op, ts)
+		t.er.ServerError(w, fmt.Errorf("template %v not executed", ts))
+		return
+	}
+
+	// write buffer to http.ResponseWriter
+	buf.WriteTo(w)
+}
+
+// Create an addDefaultData helper. This takes a pointer to a templateData
+// struct, adds the current year to the CurrentYear field, and then returns
+// the pointer. Again, we're not using the *http.Request parameter at the
+// moment, but we will do later in the book.
+func AddDefaultData(td *TemplateData, r *http.Request) *TemplateData {
+	if td == nil {
+		td = &TemplateData{}
+	}
+
+	// Add current time.
+	td.CurrentYear = time.Now().Year()
+	// Add flash message.
+	// TODO sort out
+	// td.Flash = app.session.PopString(r, "flash")
+	// Check if user is authenticate.
+	td.AuthenticatedUser = helpers.AuthenticatedUser(r)
+	// Add the CSRF token to the templateData struct.
+	td.CSRFToken = nosurf.Token(r)
+	// Add User Name to template
+	// td.UserName = app.UserName
+
+	return td
 }

@@ -57,7 +57,7 @@ func (m *Middleware) NoSurf(next http.Handler) http.Handler {
 
 func (m *Middleware) LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m.log.Printf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.RequestURI)
+		m.log.Info().Msgf("%s - %s %s %s", r.RemoteAddr, r.Proto, r.Method, r.RequestURI)
 
 		next.ServeHTTP(w, r)
 	})

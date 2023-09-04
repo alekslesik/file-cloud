@@ -22,7 +22,7 @@ confirm:
 ## run: go run the cmd/* application
 .PHONY: run
 run:
-	systemctl stop file-cloud
+	systemctl stop file-cloud	
 	go run ./cmd/file-cloud
 
 ## execute: execute the bin/ binary file
@@ -30,7 +30,7 @@ run:
 execute: build
 	systemctl stop file-cloud
 	./bin/./file-cloud
-	
+
 
 #=====================================#
 # UNIT SERVISE #
@@ -38,22 +38,22 @@ execute: build
 
 ## start: start the file-cloud.servise
 .PHONY: start
-start: 
+start:
 	systemctl start file-cloud
 
 ## stop: stop the file-cloud.servise
 .PHONY: stop
-stop: 
+stop:
 	systemctl stop file-cloud
 
 ## restart: restart the file-cloud.servise
 .PHONY: restart
-restart: 
+restart:
 	systemctl restart file-cloud
 
 ## status: status the file-cloud.servise
 .PHONY: status
-status: 
+status:
 	systemctl status file-cloud
 
 #=====================================#
