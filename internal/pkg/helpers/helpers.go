@@ -25,7 +25,7 @@ type ClientServerError interface {
 }
 
 type Helpers struct {
-	er ClientServerError
+	er  ClientServerError
 	log logging.Logger
 	tmp map[string]*template.Template
 }
@@ -93,7 +93,6 @@ func (h *Helpers) AuthenticatedUser(r *http.Request) *models.User {
 	return user
 }
 
-//
 func (h *Helpers) OpenDB(dsn string) (*sql.DB, error) {
 	const op = "helpers.OpenDB()"
 	db, err := sql.Open("mysql", dsn)

@@ -17,12 +17,12 @@ import (
 
 // Declare an instance of the config struct
 func loadConfig() *config.Config {
-    return config.New()
+	return config.New()
 }
 
 // Declare an instance of the config struct
 func initLogger(cfg *config.Config) *logging.Logger {
-    return logging.New(cfg)
+	return logging.New(cfg)
 }
 
 // Declare an instance of the session struct
@@ -32,12 +32,12 @@ func initSession(cfg *config.Config) *session.Session {
 
 // Declare an instance of the helpers struct
 func initHelpers(logger *logging.Logger) *helpers.Helpers {
-    return helpers.New(*logger)
+	return helpers.New(*logger)
 }
 
 // Declare an instance of the config struct
 func initCSError() *cserror.CSError {
-    return cserror.New()
+	return cserror.New()
 }
 
 // Data base initialization

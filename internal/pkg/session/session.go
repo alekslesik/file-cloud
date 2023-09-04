@@ -22,4 +22,3 @@ func (s *Session) setupSession() {
 	s.Secure = true
 	s.SameSite = http.SameSiteStrictMode
 }
-

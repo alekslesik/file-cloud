@@ -14,9 +14,9 @@ import (
 type Cache map[string]*template.Template
 
 type Template struct {
-	tmpl *TemplateData
+	tmpl  *TemplateData
 	cache Cache
-	log *logging.Logger
+	log   *logging.Logger
 }
 
 type TemplateData struct {
@@ -32,9 +32,9 @@ type TemplateData struct {
 
 func New(logger *logging.Logger) *Template {
 	return &Template{
-		tmpl: new(TemplateData),
+		tmpl:  new(TemplateData),
 		cache: make(Cache),
-		log: logger,
+		log:   logger,
 	}
 }
 
@@ -114,4 +114,3 @@ func (t *Template) newCache(dir string) (Cache, error) {
 
 	return cache, nil
 }
-

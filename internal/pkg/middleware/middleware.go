@@ -20,7 +20,7 @@ var contextKeyUser = contextKey("user")
 type Middleware struct {
 	ses *session.Session
 	log *logging.Logger
-	er *cserror.CSError
+	er  *cserror.CSError
 	mdl *model.Model
 }
 
@@ -28,7 +28,7 @@ func New(ss *session.Session, lg *logging.Logger, er *cserror.CSError, md *model
 	return &Middleware{
 		ses: ss,
 		log: lg,
-		er: er,
+		er:  er,
 		mdl: md,
 	}
 }
