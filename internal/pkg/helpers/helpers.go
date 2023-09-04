@@ -96,7 +96,7 @@ func (h *Helpers) AuthenticatedUser(r *http.Request) *models.User {
 //
 func (h *Helpers) OpenDB(dsn string) (*sql.DB, error) {
 	const op = "helpers.OpenDB()"
-	db, err := sql.Open("mysql", "dsn")
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		h.log.Err(err).Msgf("%s: open db", op)
 		return nil, err
