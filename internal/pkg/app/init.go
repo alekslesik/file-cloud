@@ -13,6 +13,7 @@ import (
 	tmpl "github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
+	"github.com/alekslesik/file-cloud/pkg/models"
 )
 
 // Declare an instance of the config struct
@@ -42,11 +43,11 @@ func initCSError() *cserror.CSError {
 
 // Data base initialization
 func initDB(helpers *helpers.Helpers, cfg *config.Config) (*sql.DB, error) {
-	db, err := helpers.OpenDB(cfg.MySQL.DSN)
+	db, err := models.OpenDB(cfg.MySQL.DSN, models.MYSQL)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return db, err
 }
 
