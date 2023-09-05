@@ -12,6 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("%s > create app error: %v", op, err)
 	}
+	// defer app.Close()
 
 	err = app.Run()
 	if err != nil {

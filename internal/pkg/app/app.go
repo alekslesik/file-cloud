@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
 	"os"
@@ -33,8 +34,10 @@ type Application struct {
 	session    *session.Session
 	model      *model.Model
 	template   *tmpl.Template
+	dataBase   *sql.DB
 }
 
+// Create new instance of application
 func New() (*Application, error) {
 	const op = "app.New()"
 
@@ -56,14 +59,16 @@ func New() (*Application, error) {
 	csErrors := initCSError()
 
 	// Open DB connection pull
-	db, err := initDB(helpers, config)
+	dataBase, err := initDB(helpers, config)
 	if err != nil {
 		logger.Err(err).Msgf("%s > open db", op)
 		return nil, err
 	}
 
+	defer dataBase.Close()
+
 	template := initTemplate(logger)
-	model := initModel(db)
+	model := initModel(dataBase)
 	middleware := initMiddleware(session, logger, csErrors, model)
 	endpoint := initEndpoint(*template, csErrors, model, session)
 	router := initRouter(endpoint, middleware, session)
@@ -78,11 +83,13 @@ func New() (*Application, error) {
 		session:    session,
 		model:      model,
 		template:   template,
+		dataBase:   dataBase,
 	}
 
 	return app, nil
 }
 
+// Create and start server
 func (a *Application) Run() error {
 	const op = "app.Run()"
 	var serverErr error
@@ -107,10 +114,19 @@ func (a *Application) Run() error {
 		}
 	}()
 
-	a.logger.Info().Msgf("Server started on http://golang.fvds.ru%s/", srv.Addr)
+	a.logger.Info().Msgf("server started on http://golang.fvds.ru%s/", srv.Addr)
 
 	<-done
 	a.logger.Info().Msg("server stopped")
 
 	return serverErr
+}
+
+// Close database
+func (a *Application) Close() {
+	const op = "app.Close()"
+
+	if err := a.dataBase.Close(); err != nil {
+		a.logger.Err(err).Msgf("%s > failed to close data base", op)
+	}
 }
