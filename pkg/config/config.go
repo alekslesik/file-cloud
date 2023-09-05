@@ -10,7 +10,6 @@ import (
 // Create config struct
 type Config struct {
 	AppConfig struct {
-		LogLevel  string
 		Port      int    `env:"PORT" env-default:"80"`
 		Env       string `env:"ENV" env-default:"development"`
 		AdminUser struct {
@@ -26,7 +25,6 @@ type Config struct {
 		Compress   bool   `env:"LOG_COMPRESS" env-default:"true"`
 	}
 	MySQL struct {
-		// DSN string `env:"WEB_DB_DSN" env-default:"web/Todor1990///@/file_cloud?parseTime=true"`
 		DSN string `env:"WEB_DB_DSN" env-default:"web:Todor1990///@tcp(localhost:3306)/file_cloud?parseTime=true"`
 	}
 	Session struct {
