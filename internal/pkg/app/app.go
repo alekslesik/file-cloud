@@ -46,9 +46,9 @@ func New() (*Application, error) {
 
 	// https
 	// flag.IntVar(&cfg.port, "port", 443, "API server port")
-	flag.StringVar(&config.AppConfig.Env, "env", "development", "Environment (development|staging|production)")
+	flag.StringVar(&config.App.Env, "env", "development", "Environment (development|staging|production)")
 	// http
-	flag.IntVar(&config.AppConfig.Port, "port", 80, "API server port")
+	flag.IntVar(&config.App.Port, "port", 80, "API server port")
 	config.MySQL.DSN = *flag.String("dsn", config.MySQL.DSN, "Name SQL data Source")
 	flag.Parse()
 
@@ -95,7 +95,7 @@ func (a *Application) Run() error {
 	var serverErr error
 
 	srv := &http.Server{
-		Addr:    fmt.Sprintf(":%d", a.config.AppConfig.Port),
+		Addr:    fmt.Sprintf(":%d", a.config.App.Port),
 		Handler: a.router.Route(),
 		// TLSConfig: tlsConfig,
 		// Add Idle, Read and Write timeouts to the server
