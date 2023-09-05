@@ -8,33 +8,39 @@ import (
 )
 
 // Create config struct
-type Config struct {
-	AppConfig struct {
-		Port      int    `env:"PORT" env-default:"80"`
-		Env       string `env:"ENV" env-default:"development"`
-		AdminUser struct {
-			Email    string `env:"ADMIN_EMAIL" env-default:"admin"`
-			Password string `env:"ADMIN_PWD" env-default:"admin"`
-		}
-	}
-	LoggerSruct struct {
-		Filename   string `env:"LOG_FILENAME" env-default:"logs/log.log"`
-		MaxSize    int    `env:"LOG_MAXSIZE" env-default:"100"`
-		MaxBackups int    `env:"LOG_MAXBACKUP" env-default:"3"`
-		MaxAge     int    `env:"LOG_MAXAGE" env-default:"24"`
-		Compress   bool   `env:"LOG_COMPRESS" env-default:"true"`
-	}
-	MySQL struct {
-		DSN string `env:"WEB_DB_DSN" env-default:"web:Todor1990///@tcp(localhost:3306)/file_cloud?parseTime=true"`
-	}
-	Session struct {
-		Secret string `env:"SESSION_SECRET" env-default:"s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"`
-	}
-
-	// IsDebug       bool `env:"IS_DEBUG" env-default:"false"`
-	// IsDevelopment bool `env:"IS_DEV" env-default:"true"`
+type AppConfig struct {
+    Port      int    `env:"PORT" env-default:"80"`
+    Env       string `env:"ENV" env-default:"development"`
+    AdminUser struct {
+        Email    string `env:"ADMIN_EMAIL" env-default:"admin"`
+        Password string `env:"ADMIN_PWD" env-default:"admin"`
+    }
 }
 
+type LoggerConfig struct {
+    Filename   string `env:"LOG_FILENAME" env-default:"logs/log.log"`
+    MaxSize    int    `env:"LOG_MAXSIZE" env-default:"100"`
+    MaxBackups int    `env:"LOG_MAXBACKUP" env-default:"3"`
+    MaxAge     int    `env:"LOG_MAXAGE" env-default:"24"`
+    Compress   bool   `env:"LOG_COMPRESS" env-default:"true"`
+}
+
+type MySQLConfig struct {
+    DSN string `env:"WEB_DB_DSN" env-default:"web:Todor1990///@tcp(localhost:3306)/file_cloud?parseTime=true"`
+}
+
+type SessionConfig struct {
+    Secret string `env:"SESSION_SECRET" env-default:"s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"`
+}
+
+type Config struct {
+    App     AppConfig
+    Logger  LoggerConfig
+    MySQL   MySQLConfig
+    Session SessionConfig
+}
+
+// Singleton pattern
 var instance *Config
 var once sync.Once
 
@@ -44,7 +50,7 @@ func New() *Config {
 		instance = &Config{}
 
 		if err := cleanenv.ReadEnv(instance); err != nil {
-			helpText := "Monolith Note System"
+			helpText := "File cloud"
 			help, _ := cleanenv.GetDescription(instance, &helpText)
 			log.Print(help)
 			log.Fatal(err)
