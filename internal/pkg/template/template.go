@@ -9,10 +9,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/pkg/forms"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/justinas/nosurf"
 )
 
@@ -27,7 +27,7 @@ type Template struct {
 	tmpl  *TemplateData
 	cache Cache
 	log   *logging.Logger
-	er ClientServerError
+	er    ClientServerError
 }
 
 type TemplateData struct {

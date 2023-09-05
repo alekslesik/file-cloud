@@ -43,7 +43,3 @@ func AuthenticatedUser(r *http.Request) *models.User {
 	}
 	return user
 }
-
-
-
-
