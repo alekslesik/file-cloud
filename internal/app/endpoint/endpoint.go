@@ -30,17 +30,17 @@ type ClientServerError interface {
 
 type Endpoint struct {
 	tmpl Template
-	er ClientServerError
-	md *model.Model
-	ss session.Session
+	er   ClientServerError
+	md   *model.Model
+	ss   session.Session
 }
 
 func New(tmpl Template, er ClientServerError, md *model.Model, ss session.Session) *Endpoint {
 	return &Endpoint{
 		tmpl: tmpl,
-		er: er,
-		md: md,
-		ss: ss,
+		er:   er,
+		md:   md,
+		ss:   ss,
 	}
 }
 
