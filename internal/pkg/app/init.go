@@ -42,13 +42,11 @@ func initCSError() *cserror.CSError {
 
 // Data base initialization
 func initDB(helpers *helpers.Helpers, cfg *config.Config) (*sql.DB, error) {
-	// db, err := helpers.OpenDB(cfg.MySQL.DSN)
-	db, err := helpers.OpenDB("web:Todor1990///@tcp(localhost:3306)/file_cloud")
+	db, err := helpers.OpenDB(cfg.MySQL.DSN)
 	if err != nil {
 		return nil, err
 	}
-	defer db.Close()
-
+	
 	return db, err
 }
 
