@@ -7,7 +7,6 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
-// Create config struct
 type AppConfig struct {
     Port      int    `env:"PORT" env-default:"80"`
     Env       string `env:"ENV" env-default:"development"`
