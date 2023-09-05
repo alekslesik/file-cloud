@@ -4,43 +4,62 @@ import (
 	"os"
 	"time"
 
-	"github.com/alekslesik/file-cloud/pkg/config"
-
-	// "github.com/natefinch/lumberjack"
 	"github.com/rs/zerolog"
-	// "github.com/rs/zerolog/log"
+)
+
+const (
+	DEVELOPMENT = "development"
+	PRODUCTION  = "production"
 )
 
 type Logger struct {
 	zerolog.Logger
+	logPath string
 }
 
+var logFile = "./tmp/log.log"
+
 // Return new zerologer
-func New(cfg *config.Config) *Logger {
+func New(level string) *Logger {
 
-	////logging to file
-	// file, err := os.OpenFile(
-	// 	"myapp.log",
-	// 	os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-	// 	0664,
-	// )
-	// if err != nil {
-	// 	panic(err)
-	// }
+	switch level {
+	case PRODUCTION:
+		//logging to file
+		file, err := os.OpenFile(
+			logFile,
+			os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+			0664,
+		)
+		if err != nil {
+			panic(err)
+		}
 
-	// defer file.Close()
+		defer file.Close()
 
-	// createMsg := func () string {
-	// 	return "createMsg"
-	// }
+		z := zerolog.New(zerolog.ConsoleWriter{Out: file, TimeFormat: time.RFC3339}).
+			Level(zerolog.TraceLevel).
+			With().
+			Stack().
+			Timestamp().
+			Caller().
+			Logger()
 
-	z := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
-		Level(zerolog.TraceLevel).
-		With().
-		Stack().
-		Timestamp().
-		Caller().
-		Logger()
+		return &Logger{z, logFile}
 
-	return &Logger{z}
+	default:
+		z := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
+			Level(zerolog.TraceLevel).
+			With().
+			Stack().
+			Timestamp().
+			Caller().
+			Logger()
+
+		return &Logger{z, ""}
+	}
+
+}
+
+func (l *Logger) SetLogFilePath(path string) {
+	l.logPath = path
 }

@@ -22,8 +22,8 @@ func loadConfig() *config.Config {
 }
 
 // Declare an instance of the config struct
-func initLogger(cfg *config.Config) *logging.Logger {
-	return logging.New(cfg)
+func initLogger(level string) *logging.Logger {
+	return logging.New(logging.DEVELOPMENT)
 }
 
 // Declare an instance of the session struct
