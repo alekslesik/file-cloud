@@ -69,18 +69,16 @@ func (a *Application) Run() error {
 		return err
 	}
 	defer dataBase.Close()
-
-	// Initialize a new session manager
-	// TODO add username to session //session = session.New([]byte(*userName))
-	session := initSession(a.config)
 	// helpers := initHelpers(logger)
 	csErrors := initCSError()
 
+	a.session = initSession(a.config)
+	// TODO add username to session //session = session.New([]byte(*userName))
 	a.model = initModel(dataBase)
 	a.middleware = initMiddleware(a.session, a.logger, csErrors, a.model)
 	a.template = initTemplate(a.logger)
-	a.endpoint = initEndpoint(*a.template, a.logger, csErrors, a.model, session)
-	a.router = initRouter(a.endpoint, a.middleware, session)
+	a.endpoint = initEndpoint(*a.template, a.logger, csErrors, a.model, a.session)
+	a.router = initRouter(a.endpoint, a.middleware, a.session)
 
 	var serverErr error
 
