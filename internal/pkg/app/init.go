@@ -5,7 +5,6 @@ import (
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/internal/pkg/middleware"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
@@ -32,9 +31,9 @@ func initSession(cfg *config.Config) *session.Session {
 }
 
 // Declare an instance of the helpers struct
-func initHelpers(logger *logging.Logger) *helpers.Helpers {
-	return helpers.New(logger)
-}
+// func initHelpers(logger *logging.Logger) *helpers.Helpers {
+// 	return helpers.New(logger)
+// }
 
 // Declare an instance of the config struct
 func initCSError() *cserror.CSError {
