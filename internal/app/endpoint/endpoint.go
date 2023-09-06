@@ -11,6 +11,7 @@ import (
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
 	"github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/forms"
+	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 )
 
@@ -30,14 +31,16 @@ type ClientServerError interface {
 
 type Endpoint struct {
 	tmpl Template
+	log  *logging.Logger
 	er   ClientServerError
 	md   *model.Model
 	ss   session.Session
 }
 
-func New(tmpl Template, er ClientServerError, md *model.Model, ss session.Session) *Endpoint {
+func New(tmpl Template, log *logging.Logger, er ClientServerError, md *model.Model, ss session.Session) *Endpoint {
 	return &Endpoint{
 		tmpl: tmpl,
+		log:  log,
 		er:   er,
 		md:   md,
 		ss:   ss,
@@ -105,9 +108,12 @@ func (e *Endpoint) UserSignupGet(w http.ResponseWriter, r *http.Request) {
 
 // Sign up user POST /user/signup
 func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
+	const op = "endpoint.UserSignupPost()"
+
 	// Parse the form data.
 	err := r.ParseForm()
 	if err != nil {
+		e.log.Err(err).Msgf("%s > parse form", op)
 		e.er.ClientError(w, http.StatusBadRequest, fmt.Errorf("sign up user POST /user/signup error"))
 		return
 	}
@@ -130,12 +136,14 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	// add an error message to the form and re-display it.
 	err = e.md.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
 	if err == models.ErrDuplicateEmail {
+		e.log.Err(err).Msgf("%s > duplicate email", op)
 		form.Errors.Add("email", "Address is already in use")
 		e.tmpl.Render(w, r, "signup.page.html", &template.TemplateData{
 			Form: form,
 		})
 		return
 	} else if err != nil {
+		e.log.Err(err).Msgf("%s > user insert", op)
 		e.er.ServerError(w, err)
 		return
 	}

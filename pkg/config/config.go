@@ -8,7 +8,7 @@ import (
 )
 
 type AppConfig struct {
-	Port      int    `env:"PORT" env-default:"80"`
+	Port      int    `env:"PORT" env-default:"443"`
 	Env       string `env:"ENV" env-default:"development"`
 	AdminUser struct {
 		Email    string `env:"ADMIN_EMAIL" env-default:"admin"`
@@ -28,6 +28,11 @@ type MySQLConfig struct {
 	DSN string `env:"WEB_DB_DSN" env-default:"web:Todor1990///@tcp(localhost:3306)/file_cloud?parseTime=true"`
 }
 
+type TlsConfig struct {
+	KeyPath  string `env:"TLS_KEY_PATH" env-default:"./tls/key.pem"`
+	CertPath string `env:"TLS_CERT_PATH" env-default:"./tls/cert.pem"`
+}
+
 type SessionConfig struct {
 	Secret string `env:"SESSION_SECRET" env-default:"s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"`
 }
@@ -37,6 +42,7 @@ type Config struct {
 	Logger  LoggerConfig
 	MySQL   MySQLConfig
 	Session SessionConfig
+	TLS     TlsConfig
 }
 
 // Singleton pattern

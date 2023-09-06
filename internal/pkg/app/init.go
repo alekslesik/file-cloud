@@ -5,7 +5,6 @@ import (
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/internal/pkg/middleware"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
@@ -32,9 +31,9 @@ func initSession(cfg *config.Config) *session.Session {
 }
 
 // Declare an instance of the helpers struct
-func initHelpers(logger *logging.Logger) *helpers.Helpers {
-	return helpers.New(logger)
-}
+// func initHelpers(logger *logging.Logger) *helpers.Helpers {
+// 	return helpers.New(logger)
+// }
 
 // Declare an instance of the config struct
 func initCSError() *cserror.CSError {
@@ -42,7 +41,7 @@ func initCSError() *cserror.CSError {
 }
 
 // Data base initialization
-func initDB(helpers *helpers.Helpers, cfg *config.Config) (*sql.DB, error) {
+func initDB(cfg *config.Config) (*sql.DB, error) {
 	db, err := models.OpenDB(cfg.MySQL.DSN, models.MYSQL)
 	if err != nil {
 		return nil, err
@@ -62,8 +61,8 @@ func initMiddleware(session *session.Session, logger *logging.Logger, CSError *c
 }
 
 // Declare an instance of the config struct
-func initEndpoint(template tmpl.Template, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
-	return endpoint.New(&template, CSError, model, *session)
+func initEndpoint(template tmpl.Template, logger *logging.Logger, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
+	return endpoint.New(&template, logger, CSError, model, *session)
 }
 
 // Declare an instance of the config struct
