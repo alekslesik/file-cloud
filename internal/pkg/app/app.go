@@ -42,8 +42,6 @@ func New() (*Application, error) {
 	const op = "app.New()"
 
 	config := loadConfig()
-	logger := initLogger(config)
-
 	// https
 	// flag.IntVar(&cfg.port, "port", 443, "API server port")
 	flag.StringVar(&config.App.Env, "env", "development", "Environment (development|staging|production)")
@@ -52,6 +50,7 @@ func New() (*Application, error) {
 	config.MySQL.DSN = *flag.String("dsn", config.MySQL.DSN, "Name SQL data Source")
 	flag.Parse()
 
+	logger := initLogger(config.App.Env)
 	// Initialize a new session manager
 	// TODO add username to session //session = session.New([]byte(*userName))
 	session := initSession(config)
