@@ -42,7 +42,7 @@ func initCSError() *cserror.CSError {
 }
 
 // Data base initialization
-func initDB(helpers *helpers.Helpers, cfg *config.Config) (*sql.DB, error) {
+func initDB(cfg *config.Config) (*sql.DB, error) {
 	db, err := models.OpenDB(cfg.MySQL.DSN, models.MYSQL)
 	if err != nil {
 		return nil, err
@@ -62,8 +62,8 @@ func initMiddleware(session *session.Session, logger *logging.Logger, CSError *c
 }
 
 // Declare an instance of the config struct
-func initEndpoint(template tmpl.Template, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
-	return endpoint.New(&template, CSError, model, *session)
+func initEndpoint(template tmpl.Template, logger *logging.Logger, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
+	return endpoint.New(&template, logger, CSError, model, *session)
 }
 
 // Declare an instance of the config struct

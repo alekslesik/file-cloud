@@ -38,9 +38,7 @@ type Application struct {
 }
 
 // Create new instance of application
-func New() (*Application, error) {
-	const op = "app.New()"
-
+func New() (*Application) {
 	config := loadConfig()
 	// https
 	// flag.IntVar(&cfg.port, "port", 443, "API server port")
@@ -51,46 +49,39 @@ func New() (*Application, error) {
 	flag.Parse()
 
 	logger := initLogger(config.App.Env)
-	// Initialize a new session manager
-	// TODO add username to session //session = session.New([]byte(*userName))
-	session := initSession(config)
-	helpers := initHelpers(logger)
-	csErrors := initCSError()
-
-	// Open DB connection pull
-	dataBase, err := initDB(helpers, config)
-	if err != nil {
-		logger.Err(err).Msgf("%s > open db", op)
-		return nil, err
-	}
-
-	defer dataBase.Close()
-
-	template := initTemplate(logger)
-	model := initModel(dataBase)
-	middleware := initMiddleware(session, logger, csErrors, model)
-	endpoint := initEndpoint(*template, csErrors, model, session)
-	router := initRouter(endpoint, middleware, session)
 
 	// Initialization application struct
 	app := &Application{
 		config:     config,
 		logger:     logger,
-		endpoint:   endpoint,
-		router:     router,
-		middleware: middleware,
-		session:    session,
-		model:      model,
-		template:   template,
-		dataBase:   dataBase,
 	}
 
-	return app, nil
+	return app
 }
 
 // Create and start server
 func (a *Application) Run() error {
 	const op = "app.Run()"
+
+	dataBase, err := initDB(a.config)
+	if err != nil {
+		a.logger.Err(err).Msgf("%s > open db", op)
+		return err
+	}
+	defer dataBase.Close()
+
+	// Initialize a new session manager
+	// TODO add username to session //session = session.New([]byte(*userName))
+	session := initSession(a.config)
+	// helpers := initHelpers(logger)
+	csErrors := initCSError()
+
+	a.model = initModel(dataBase)
+	a.middleware = initMiddleware(a.session, a.logger, csErrors, a.model)
+	a.template = initTemplate(a.logger)
+	a.endpoint = initEndpoint(*a.template, a.logger, csErrors, a.model, session)
+	a.router = initRouter(a.endpoint, a.middleware, session)
+
 	var serverErr error
 
 	srv := &http.Server{
