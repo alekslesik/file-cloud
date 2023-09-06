@@ -22,8 +22,8 @@ confirm:
 ## run: go run the cmd/* application
 .PHONY: run
 run:
-	systemctl stop file-cloud	
-	go run ./cmd/file-cloud
+	systemctl stop file-cloud
+	go run ./cmd/file-cloud --env=development --port=443
 
 ## execute: execute the bin/ binary file
 .PHONY: execute
@@ -37,23 +37,23 @@ execute: build
 #=====================================#
 
 ## start: start the file-cloud.servise
-.PHONY: start
-start:
+.PHONY: unit.start
+unit.start:
 	systemctl start file-cloud
 
 ## stop: stop the file-cloud.servise
-.PHONY: stop
-stop:
+.PHONY: unit.stop
+unit.stop:
 	systemctl stop file-cloud
 
 ## restart: restart the file-cloud.servise
-.PHONY: restart
-restart:
+.PHONY: unit.restart
+unit.restart:
 	systemctl restart file-cloud
 
 ## status: status the file-cloud.servise
-.PHONY: status
-status:
+.PHONY: unit.status
+unit.status:
 	systemctl status file-cloud
 
 #=====================================#
@@ -136,7 +136,8 @@ build: audit
 	systemctl stop file-cloud
 	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
 	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
-	# cp -a -R ui /var/www/
+	cp -a -R tls /var/www/
+	cp -a -R website /var/www/
 	systemctl restart file-cloud
 	# tail -f /var/www/logs/log.log
 

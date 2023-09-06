@@ -36,28 +36,24 @@ type Application struct {
 }
 
 // Create new instance of application
-func New() (*Application) {
-	config := loadConfig()
-
-	flag.StringVar(&config.App.Env, "env", "development", "Environment (development|staging|production)")
-	flag.IntVar(&config.App.Port, "port", 443, "API server port")
-	config.MySQL.DSN = *flag.String("dsn", config.MySQL.DSN, "Name SQL data Source")
-	flag.Parse()
-
-	logger := initLogger(config.App.Env)
-
-	// Initialization application struct
-	app := &Application{
-		config:     config,
-		logger:     logger,
-	}
-
-	return app
+func New() *Application {
+	return &Application{}
 }
 
 // Create and start server
 func (a *Application) Run() error {
 	const op = "app.Run()"
+
+	a.config = loadConfig()
+
+	flag.StringVar(&a.config.App.Env, "env", logging.DEVELOPMENT, "Environment (development|staging|production)")
+	flag.IntVar(&a.config.App.Port, "port", 443, "API server port")
+	a.config.MySQL.DSN = *flag.String("dsn", a.config.MySQL.DSN, "Name SQL data Source")
+	flag.Parse()
+
+	a.logger = initLogger(a.config.App.Env)
+
+	// Initialization application struct
 
 	dataBase, err := initDB(a.config)
 	if err != nil {
@@ -90,8 +86,8 @@ func (a *Application) Run() error {
 		Addr:    fmt.Sprintf(":%d", a.config.App.Port),
 		Handler: a.router.Route(),
 		TLSConfig: &tls.Config{
-			MinVersion: tls.VersionTLS12,
-			RootCAs: rootCAs,
+			MinVersion:         tls.VersionTLS12,
+			RootCAs:            rootCAs,
 			InsecureSkipVerify: false,
 		},
 		IdleTimeout:  time.Minute,

@@ -17,7 +17,7 @@ type Logger struct {
 	logPath string
 }
 
-var logFile = "./tmp/log.log"
+var logFile = "log.log"
 
 // Return new zerologer
 func New(level string) *Logger {
