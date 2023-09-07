@@ -25,6 +25,12 @@ run:
 	systemctl stop file-cloud
 	go run ./cmd/file-cloud --env=development --port=443
 
+## prod.run: go run the cmd/* application in production
+.PHONY: prod.run
+prod.run:
+	systemctl stop file-cloud
+	go run ./cmd/file-cloud --env=production --port=443
+
 ## execute: execute the bin/ binary file
 .PHONY: execute
 execute: build

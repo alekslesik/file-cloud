@@ -51,7 +51,19 @@ func (a *Application) Run() error {
 	a.config.MySQL.DSN = *flag.String("dsn", a.config.MySQL.DSN, "Name SQL data Source")
 	flag.Parse()
 
-	a.logger = initLogger(a.config.App.Env)
+	logFile, err := os.OpenFile(
+		a.config.Logger.Filename,
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+		0664,
+	)
+	if err != nil {
+		a.logger.Err(err).Msgf("%s > open file", op)
+		return err
+	}
+
+	defer logFile.Close()
+
+	a.logger = initLogger(a.config.App.Env, logFile)
 
 	// Initialization application struct
 

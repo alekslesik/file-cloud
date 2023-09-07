@@ -2,6 +2,7 @@ package app
 
 import (
 	"database/sql"
+	"os"
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
@@ -21,8 +22,8 @@ func loadConfig() *config.Config {
 }
 
 // Declare an instance of the config struct
-func initLogger(level string) *logging.Logger {
-	return logging.New(level)
+func initLogger(level string, file *os.File) *logging.Logger {
+	return logging.New(level, file)
 }
 
 // Declare an instance of the session struct
