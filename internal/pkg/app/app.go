@@ -51,13 +51,9 @@ func (a *Application) Run() error {
 	a.config.MySQL.DSN = *flag.String("dsn", a.config.MySQL.DSN, "Name SQL data Source")
 	flag.Parse()
 
-	logFile, err := os.OpenFile(
-		a.config.Logger.Filename,
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY,
-		0664,
-	)
+	logFile, err := logging.CreateLogFile(a.config.Logger.LogFilePath)
 	if err != nil {
-		a.logger.Err(err).Msgf("%s > open file", op)
+		a.logger.Err(err).Msgf("%s > create file", op)
 		return err
 	}
 

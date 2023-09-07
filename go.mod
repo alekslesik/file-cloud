@@ -22,6 +22,6 @@ require (
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.4.2
-	github.com/rs/zerolog v1.29.1
+	github.com/rs/zerolog v1.30.0
 	golang.org/x/sys v0.7.0 // indirect
 )
