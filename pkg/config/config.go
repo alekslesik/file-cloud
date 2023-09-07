@@ -17,11 +17,11 @@ type AppConfig struct {
 }
 
 type LoggerConfig struct {
-	Filename   string `env:"LOG_FILENAME" env-default:"tmp/log.log"`
-	MaxSize    int    `env:"LOG_MAXSIZE" env-default:"100"`
-	MaxBackups int    `env:"LOG_MAXBACKUP" env-default:"3"`
-	MaxAge     int    `env:"LOG_MAXAGE" env-default:"24"`
-	Compress   bool   `env:"LOG_COMPRESS" env-default:"true"`
+	LogFilePath string `env:"LOG_FILE" env-default:"tmp/log.log"`
+	MaxSize     int    `env:"LOG_MAXSIZE" env-default:"100"`
+	MaxBackups  int    `env:"LOG_MAXBACKUP" env-default:"3"`
+	MaxAge      int    `env:"LOG_MAXAGE" env-default:"24"`
+	Compress    bool   `env:"LOG_COMPRESS" env-default:"true"`
 }
 
 type MySQLConfig struct {
