@@ -14,6 +14,7 @@ import (
 	"github.com/alekslesik/file-cloud/pkg/config"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
+	"github.com/rs/zerolog/log"
 )
 
 // Declare an instance of the config struct
@@ -23,7 +24,25 @@ func loadConfig() *config.Config {
 
 // Declare an instance of the config struct
 func initLogger(level string, file *os.File) *logging.Logger {
-	return logging.New(level, file)
+	const op = "app.initLogger()"
+
+	// Create a LoggerConfig based on your requirements
+	config := logging.LoggerConfig{
+		Level:   level,
+		File:    file,
+	}
+
+	// Create a LoggerFactory with the desired configuration
+	factory := logging.NewLoggerFactory(config)
+
+	// Create a logger using the factory
+	logger, err := factory.CreateLogger()
+	if err != nil {
+		log.Err(err).Msgf("%s > create logger", op)
+		return nil
+	}
+
+	return logger
 }
 
 // Declare an instance of the session struct
