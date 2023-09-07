@@ -28,8 +28,8 @@ func initLogger(level string, file *os.File) *logging.Logger {
 
 	// Create a LoggerConfig based on your requirements
 	config := logging.LoggerConfig{
-		Level:   level,
-		File:    file,
+		Level: level,
+		File:  file,
 	}
 
 	// Create a LoggerFactory with the desired configuration

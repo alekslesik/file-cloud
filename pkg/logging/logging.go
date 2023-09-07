@@ -21,8 +21,8 @@ type Logger struct {
 }
 
 type LoggerConfig struct {
-	Level   string
-	File    *os.File
+	Level string
+	File  *os.File
 }
 
 // Create log file in specified filePath
