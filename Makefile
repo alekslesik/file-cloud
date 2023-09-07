@@ -23,20 +23,19 @@ confirm:
 .PHONY: run
 run:
 	systemctl stop file-cloud
-	go run ./cmd/file-cloud --env=development --port=443
+	go run ./cmd/file-cloud -env=development --port=443
 
 ## prod.run: go run the cmd/* application in production
 .PHONY: prod.run
 prod.run:
 	systemctl stop file-cloud
-	go run ./cmd/file-cloud --env=production --port=443
+	go run ./cmd/file-cloud -env=production --port=443
 
-## execute: execute the bin/ binary file
-.PHONY: execute
-execute: build
+## bin.run: execute the bin/ binary file
+.PHONY: bin.run
+bin.run: local.build
 	systemctl stop file-cloud
-	./bin/./file-cloud
-
+	./bin/file-cloud -env=development
 
 #=====================================#
 # UNIT SERVISE #
@@ -136,14 +135,20 @@ current_time = $(shell date --iso-8601=seconds)
 git_description = $(shell git describe --always --dirty --tags --long)
 linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_description}'
 
-## build/api: build the cmd/api application
-.PHONY: build
-build: audit
+## prod.build: build the cmd/api application on production
+.PHONY: prod.build
+prod.build: audit
 	systemctl stop file-cloud
 	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
 	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
 	cp -a -R tls /var/www/
 	cp -a -R website /var/www/
+	cp -a -R tmp /var/www/
 	systemctl restart file-cloud
 	# tail -f /var/www/logs/log.log
 
+## local.build: build the cmd/api application local
+.PHONY: local.build
+local.build: audit
+	systemctl stop file-cloud
+	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
