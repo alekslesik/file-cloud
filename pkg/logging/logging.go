@@ -60,11 +60,9 @@ func (lf *LoggerFactory) CreateLogger() (*Logger, error) {
 func getProdLogger(file *os.File) *Logger {
 	zerolog.TimeFieldFormat = time.RFC1123
 	z := zerolog.New(file).
-		Level(zerolog.TraceLevel).
+		Level(zerolog.InfoLevel).
 		With().
-		Stack().
 		Timestamp().
-		Caller().
 		Logger()
 
 	return &Logger{z}
