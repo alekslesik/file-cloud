@@ -61,7 +61,9 @@ func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
 
 // Login user GET /login.
 func (e *Endpoint) UserLoginGet(w http.ResponseWriter, r *http.Request) {
+	flash := e.ses.PopString(r, "flash")
 	e.tmpl.Render(w, r, "login.page.html", &template.TemplateData{
+		Flash: flash,
 		Form: forms.New(nil),
 	})
 }
