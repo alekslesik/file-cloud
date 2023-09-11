@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
 	"github.com/alekslesik/file-cloud/internal/pkg/template"
@@ -56,7 +55,10 @@ func (e *Endpoint) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
 
 // Home GET /
 func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
-	e.tmpl.Render(w, r, "home.page.html", &template.TemplateData{})
+	flash := e.ses.PopString(r, "flash")
+	e.tmpl.Render(w, r, "home.page.html", &template.TemplateData{
+		Flash: flash,
+	})
 }
 
 // Login user GET /login.
@@ -94,7 +96,7 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add the ID of the current user to the session
-	e.ses.Put(r, "userID", id)
+	e.ses.Put(r, template.UserID, id)
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -161,7 +163,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 // Logout user GET /user/logout
 func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 	// Remove userID from session.
-	e.ses.Remove(r, "userID")
+	e.ses.Remove(r, template.UserID)
 	// Add flash to session.
 	e.ses.Put(r, "flash", "You've been logged out successfully!")
 
@@ -171,7 +173,7 @@ func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 // Files page GET /files
 func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 	// check user authenticate
-	if helpers.AuthenticatedUser(r) != nil {
+	if template.AuthenticatedUser(r) != nil {
 		files, err := e.mdl.Files.All()
 		if err != nil {
 			e.er.ServerError(w, err)
