@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -53,16 +54,13 @@ func (a *Application) Run() error {
 
 	logFile, err := logging.CreateLogFile(a.config.Logger.LogFilePath)
 	if err != nil {
-		a.logger.Err(err).Msgf("%s > create file", op)
+		log.Printf("%s error create log file: %s", op, err)
 		return err
 	}
 
 	defer logFile.Close()
 
-	a.logger = initLogger(a.config.App.Env, logFile)
-
 	// Initialization application struct
-
 	dataBase, err := initDB(a.config)
 	if err != nil {
 		a.logger.Err(err).Msgf("%s > open db", op)
