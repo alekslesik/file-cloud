@@ -32,8 +32,8 @@ type Endpoint struct {
 	tmpl Template
 	log  *logging.Logger
 	er   ClientServerError
-	mdl   *model.Model
-	ses   session.Session
+	mdl  *model.Model
+	ses  session.Session
 }
 
 func New(tmpl Template, log *logging.Logger, er ClientServerError, mdl *model.Model, ses session.Session) *Endpoint {
@@ -41,8 +41,8 @@ func New(tmpl Template, log *logging.Logger, er ClientServerError, mdl *model.Mo
 		tmpl: tmpl,
 		log:  log,
 		er:   er,
-		mdl:   mdl,
-		ses:   ses,
+		mdl:  mdl,
+		ses:  ses,
 	}
 }
 
@@ -66,7 +66,7 @@ func (e *Endpoint) UserLoginGet(w http.ResponseWriter, r *http.Request) {
 	flash := e.ses.PopString(r, "flash")
 	e.tmpl.Render(w, r, "login.page.html", &template.TemplateData{
 		Flash: flash,
-		Form: forms.New(nil),
+		Form:  forms.New(nil),
 	})
 }
 

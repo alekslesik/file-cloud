@@ -29,8 +29,6 @@ func (r *Router) Route() http.Handler {
 	// which will be used for every request our application receives.
 	standardMiddleware := alice.New(r.mdw.RecoverPanic, r.mdw.LogRequest, r.mdw.SecureHeaders)
 
-	
-
 	// Create a new middleware chain containing the middleware specific to
 	// our dynamic application routes.
 	dynamicMiddleware := alice.New(r.ses.Enable, r.mdw.NoSurf, r.mdw.Authenticate)

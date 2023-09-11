@@ -14,7 +14,6 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-
 type Middleware struct {
 	ses *session.Session
 	log *logging.Logger

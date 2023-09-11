@@ -28,23 +28,23 @@ type LoggerConfig struct {
 
 // Create log file in specified filePath
 func CreateLogFile(logFilePath string) (*os.File, error) {
-    // Get dir where log file must be
-    logDir := filepath.Dir(logFilePath)
+	// Get dir where log file must be
+	logDir := filepath.Dir(logFilePath)
 
 	// Check existing dir, and create if not exists
-    if _, err := os.Stat(logDir); os.IsNotExist(err) {
-        if err := os.MkdirAll(logDir, 0755); err != nil {
-            return nil, err
-        }
-    }
+	if _, err := os.Stat(logDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(logDir, 0755); err != nil {
+			return nil, err
+		}
+	}
 
 	// Create or open log file for writing
-    logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-    if err != nil {
-        return nil, err
-    }
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return nil, err
+	}
 
-    return logFile, nil
+	return logFile, nil
 }
 
 type LoggerFactory struct {
