@@ -58,6 +58,8 @@ func (a *Application) Run() error {
 		return err
 	}
 
+	a.logger = initLogger(a.config.App.Env, logFile)
+
 	defer logFile.Close()
 
 	// Initialization application struct
