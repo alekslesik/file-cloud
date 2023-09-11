@@ -16,24 +16,24 @@ confirm:
 	@echo -n 'Are you sure? [y/N] ' && read ans && [ $${ans:-N} = y ]
 
 #=====================================#
-# DEVELOPMENT #
+# RUN #
 #=====================================#
 
 ## run: go run the cmd/* application
 .PHONY: run
 run:
 	systemctl stop file-cloud
-	go run ./cmd/file-cloud -env=development --port=443
+	go run ./cmd/file-cloud -env=development
 
-## prod.run: go run the cmd/* application in production
-.PHONY: prod.run
-prod.run:
+## run.prod: go run the cmd/* application in production
+.PHONY: run.prod
+run.prod:
 	systemctl stop file-cloud
-	go run ./cmd/file-cloud -env=production --port=443
+	go run ./cmd/file-cloud -env=production
 
-## bin.run: execute the bin/ binary file
-.PHONY: bin.run
-bin.run: local.build
+## run.bin: execute the bin/ binary file
+.PHONY: run.bin
+run.bin: local.build
 	systemctl stop file-cloud
 	./bin/file-cloud -env=development
 
@@ -80,19 +80,19 @@ migrations.new:
 .PHONY: migrations.up
 migrations.up: confirm
 	@echo 'Running up migrations...'
-	migrate -path ./migrations -database ${WEB_DB_DSN} up
+	migrate -path ./migrations -database ${MIGRATE_DSN} up
 
 ## migrations.down: apply all up database migrations
 .PHONY: migrations.down
 migrations.down:
 	@echo 'Running down migrations...'
-	migrate -path ./migrations -database ${WEB_DB_DSN} down
+	migrate -path ./migrations -database ${MIGRATE_DSN} down
 
 ## migrations.force v=$1: do force migrations
 .PHONY: migrations.force
 migrations.force: confirm
 	@echo 'Running force migrations v ${v}.'
-	migrate -path ./migrations -database ${WEB_DB_DSN} force ${v}
+	migrate -path ./migrations -database ${MIGRATE_DSN} force ${v}
 
 
 #=====================================#
@@ -135,9 +135,9 @@ current_time = $(shell date --iso-8601=seconds)
 git_description = $(shell git describe --always --dirty --tags --long)
 linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_description}'
 
-## prod.build: build the cmd/api application on production
-.PHONY: prod.build
-prod.build: audit
+## build.prod: build the cmd/api application on production
+.PHONY: build.prod
+build.prod: audit
 	systemctl stop file-cloud
 	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
 	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
@@ -147,8 +147,9 @@ prod.build: audit
 	systemctl restart file-cloud
 	# tail -f /var/www/logs/log.log
 
-## local.build: build the cmd/api application local
-.PHONY: local.build
-local.build: audit
+## build.local: build the cmd/api application local
+.PHONY: build.local
+build.local: audit
 	systemctl stop file-cloud
 	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
+	./bin/file-cloud

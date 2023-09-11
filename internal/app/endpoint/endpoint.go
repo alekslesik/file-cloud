@@ -33,17 +33,17 @@ type Endpoint struct {
 	tmpl Template
 	log  *logging.Logger
 	er   ClientServerError
-	md   *model.Model
-	ss   session.Session
+	mdl   *model.Model
+	ses   session.Session
 }
 
-func New(tmpl Template, log *logging.Logger, er ClientServerError, md *model.Model, ss session.Session) *Endpoint {
+func New(tmpl Template, log *logging.Logger, er ClientServerError, mdl *model.Model, ses session.Session) *Endpoint {
 	return &Endpoint{
 		tmpl: tmpl,
 		log:  log,
 		er:   er,
-		md:   md,
-		ss:   ss,
+		mdl:   mdl,
+		ses:   ses,
 	}
 }
 
@@ -77,7 +77,7 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Check whether the credentials are valid. If they're not, add a generic
 	// message to the form failures map and re-display the login page.
 	form := forms.New(r.PostForm)
-	id, _, err := e.md.Users.Authenticate(form.Get("email"), form.Get("password"))
+	id, _, err := e.mdl.Users.Authenticate(form.Get("email"), form.Get("password"))
 	//TODO Add User name to app
 	// app.UserName = name
 
@@ -92,7 +92,7 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add the ID of the current user to the session
-	e.ss.Put(r, "userID", id)
+	e.ses.Put(r, "userID", id)
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -134,7 +134,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
-	err = e.md.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
+	err = e.mdl.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
 	if err == models.ErrDuplicateEmail {
 		e.log.Err(err).Msgf("%s > duplicate email", op)
 		form.Errors.Add("email", "Address is already in use")
@@ -150,7 +150,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 
 	// Otherwise add a confirmation flash message to the session confirming
 	// their signup worked and asking them to log in.
-	e.ss.Put(r, "flash", "Your signup was successful. Please log in.")
+	e.ses.Put(r, "flash", "Your signup was successful. Please log in.")
 
 	// GET
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
@@ -159,9 +159,9 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 // Logout user GET /user/logout
 func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 	// Remove userID from session.
-	e.ss.Remove(r, "userID")
+	e.ses.Remove(r, "userID")
 	// Add flash to session.
-	e.ss.Put(r, "flash", "You've been logged out successfully!")
+	e.ses.Put(r, "flash", "You've been logged out successfully!")
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -170,7 +170,7 @@ func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 	// check user authenticate
 	if helpers.AuthenticatedUser(r) != nil {
-		files, err := e.md.Files.All()
+		files, err := e.mdl.Files.All()
 		if err != nil {
 			e.er.ServerError(w, err)
 		}
@@ -200,7 +200,7 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
-	_, err = e.md.Files.Insert(fileName, fileType, fileSize)
+	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize)
 	if err != nil {
 		e.er.ServerError(w, err)
 		return

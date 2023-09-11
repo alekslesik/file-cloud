@@ -1,5 +1,3 @@
-{"level":"info","time":"Thu, 07 Sep 2023 12:49:43 MSK","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on https://golang.fvds.ru:443/"}
-{"level":"info","time":"Thu, 07 Sep 2023 12:49:45 MSK","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/middleware/middleware.go:60","message":"109.197.204.22:54578 - HTTP/2.0 GET /"}
-{"level":"info","time":"Thu, 07 Sep 2023 12:49:50 MSK","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/middleware/middleware.go:60","message":"109.197.204.22:54578 - HTTP/2.0 GET /"}
-{"level":"info","time":"Thu, 07 Sep 2023 12:49:52 MSK","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/middleware/middleware.go:60","message":"109.197.204.22:54578 - HTTP/2.0 GET /user/login"}
-{"level":"info","time":"Thu, 07 Sep 2023 12:51:49 MSK","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-08T11:32:07+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on https://golang.fvds.ru:443/"}
+{"level":"info","time":"2023-09-08T11:32:19+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/middleware/middleware.go:60","message":"85.249.16.57:51849 - HTTP/2.0 POST /user/signup"}
+n() > failed to start server"}
