@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
 	"github.com/alekslesik/file-cloud/internal/pkg/template"
@@ -171,7 +170,7 @@ func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 // Files page GET /files
 func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 	// check user authenticate
-	if helpers.AuthenticatedUser(r) != nil {
+	if template.AuthenticatedUser(r) != nil {
 		files, err := e.mdl.Files.All()
 		if err != nil {
 			e.er.ServerError(w, err)

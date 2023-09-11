@@ -9,12 +9,15 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/alekslesik/file-cloud/internal/pkg/helpers"
 	"github.com/alekslesik/file-cloud/pkg/forms"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
 )
+
+type contextKey string
+
+var contextKeyUser = contextKey("userID")
 
 type ClientServerError interface {
 	ClientError(http.ResponseWriter, int, error)
@@ -167,11 +170,20 @@ func AddDefaultData(td *TemplateData, r *http.Request) *TemplateData {
 	// TODO sort out
 	// td.Flash = app.session.PopString(r, "flash")
 	// Check if user is authenticate.
-	td.AuthenticatedUser = helpers.AuthenticatedUser(r)
+	td.AuthenticatedUser = AuthenticatedUser(r)
 	// Add the CSRF token to the templateData struct.
 	td.CSRFToken = nosurf.Token(r)
 	// Add User Name to template
 	// td.UserName = app.UserName
 
 	return td
+}
+
+// Return userID ID from session
+func AuthenticatedUser(r *http.Request) *models.User {
+	user, ok := r.Context().Value(contextKeyUser).(*models.User)
+	if !ok {
+		return nil
+	}
+	return user
 }
