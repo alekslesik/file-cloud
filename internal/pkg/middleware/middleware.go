@@ -8,14 +8,12 @@ import (
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
+	"github.com/alekslesik/file-cloud/internal/pkg/template"
 	"github.com/alekslesik/file-cloud/pkg/logging"
 	"github.com/alekslesik/file-cloud/pkg/models"
 	"github.com/justinas/nosurf"
 )
 
-type contextKey string
-
-var contextKeyUser = contextKey("userID")
 
 type Middleware struct {
 	ses *session.Session
@@ -100,7 +98,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if a userID value exists in the session. If this *isn't
 		// present* then call the next handler in the chain as normal.
-		exist := m.ses.Exists(r, "userID")
+		exist := m.ses.Exists(r, template.UserID)
 		if !exist {
 			next.ServeHTTP(w, r)
 			return
@@ -109,10 +107,10 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		// Fetch the details of the current user from the database.
 		// If no matching record is found, remove the (invalid) userID from
 		// their session and call the next handler in the chain as normal.
-		userID := m.ses.GetInt(r, "userID")
+		userID := m.ses.GetInt(r, template.UserID)
 		user, err := m.mdl.Users.Get(userID)
 		if err == models.ErrNoRecord {
-			m.ses.Remove(r, "userID")
+			m.ses.Remove(r, template.UserID)
 			next.ServeHTTP(w, r)
 			return
 		} else if err != nil {
@@ -124,7 +122,7 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		// authenticated (logged in) user. We create a new copy of the
 		// request with the user information added to the request context, and
 		// call the next handler in the chain *using this new copy of the request*.
-		ctx := context.WithValue(r.Context(), contextKeyUser, user)
+		ctx := context.WithValue(r.Context(), template.UserID, user)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

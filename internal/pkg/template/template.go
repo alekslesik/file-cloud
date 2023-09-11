@@ -15,9 +15,7 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-type contextKey string
-
-var contextKeyUser = contextKey("userID")
+const UserID = "userID"
 
 type ClientServerError interface {
 	ClientError(http.ResponseWriter, int, error)
@@ -181,7 +179,7 @@ func AddDefaultData(td *TemplateData, r *http.Request) *TemplateData {
 
 // Return userID ID from session
 func AuthenticatedUser(r *http.Request) *models.User {
-	user, ok := r.Context().Value(contextKeyUser).(*models.User)
+	user, ok := r.Context().Value(UserID).(*models.User)
 	if !ok {
 		return nil
 	}

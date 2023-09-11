@@ -93,7 +93,7 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add the ID of the current user to the session
-	e.ses.Put(r, "userID", id)
+	e.ses.Put(r, template.UserID, id)
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -160,7 +160,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 // Logout user GET /user/logout
 func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 	// Remove userID from session.
-	e.ses.Remove(r, "userID")
+	e.ses.Remove(r, template.UserID)
 	// Add flash to session.
 	e.ses.Put(r, "flash", "You've been logged out successfully!")
 
