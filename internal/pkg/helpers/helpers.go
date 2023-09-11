@@ -12,7 +12,7 @@ import (
 
 type contextKey string
 
-var contextKeyUser = contextKey("user")
+var contextKeyUser = contextKey("userID")
 
 type ClientServerError interface {
 	ClientError(http.ResponseWriter, int, error)

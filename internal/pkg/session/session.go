@@ -18,7 +18,7 @@ func New(secret *string) *Session {
 }
 
 func (s *Session) setupSession() {
-	s.Lifetime = 12 * time.Hour
+	s.Lifetime = 5 * time.Minute
 	s.Secure = true
 	s.SameSite = http.SameSiteStrictMode
 }

@@ -11,40 +11,43 @@ import (
 )
 
 type Router struct {
-	ep *endpoint.Endpoint
-	md *middleware.Middleware
-	ss *session.Session
+	edp *endpoint.Endpoint
+	mdw *middleware.Middleware
+	ses *session.Session
 }
 
-func New(ep *endpoint.Endpoint, md *middleware.Middleware, ss *session.Session) *Router {
+func New(edp *endpoint.Endpoint, mdw *middleware.Middleware, ses *session.Session) *Router {
 	return &Router{
-		ep: ep,
-		md: md,
-		ss: ss,
+		edp: edp,
+		mdw: mdw,
+		ses: ses,
 	}
 }
 
 func (r *Router) Route() http.Handler {
 	// Create a middleware chain containing our 'standard' middleware
 	// which will be used for every request our application receives.
-	standardMiddleware := alice.New(r.md.RecoverPanic, r.md.LogRequest, r.md.SecureHeaders)
+	standardMiddleware := alice.New(r.mdw.RecoverPanic, r.mdw.LogRequest, r.mdw.SecureHeaders)
+
+	
 
 	// Create a new middleware chain containing the middleware specific to
 	// our dynamic application routes.
-	dynamicMiddleware := alice.New(r.ss.Enable, r.md.NoSurf, r.md.Authenticate)
+	dynamicMiddleware := alice.New(r.ses.Enable, r.mdw.NoSurf, r.mdw.Authenticate)
 
 	// New pat router with REST
 	mux := pat.New()
 	// Use the new dynamic middleware chain followed by the appropriate handler function.
-	mux.Get("/healthcheck", dynamicMiddleware.ThenFunc(r.ep.HealthcheckHandler))
-	mux.Get("/", dynamicMiddleware.ThenFunc(r.ep.HomeGet))
-	mux.Get("/user/login", dynamicMiddleware.ThenFunc(r.ep.UserLoginGet))
-	mux.Post("/user/login", dynamicMiddleware.ThenFunc(r.ep.UserLoginPost))
-	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(r.ep.UserSignupGet))
-	mux.Post("/user/signup", http.HandlerFunc(r.ep.UserSignupPost))
-	mux.Get("/user/logout", dynamicMiddleware.ThenFunc(r.ep.UserLogoutGet))
-	mux.Get("/files", dynamicMiddleware.ThenFunc(r.ep.FileUploadGet))
-	mux.Post("/files", dynamicMiddleware.ThenFunc(r.ep.FileUploadPost))
+	mux.Get("/healthcheck", dynamicMiddleware.ThenFunc(r.edp.HealthcheckHandler))
+	mux.Get("/", dynamicMiddleware.ThenFunc(r.edp.HomeGet))
+	mux.Get("/user/login", dynamicMiddleware.ThenFunc(r.edp.UserLoginGet))
+	mux.Post("/user/login", dynamicMiddleware.ThenFunc(r.edp.UserLoginPost))
+	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(r.edp.UserSignupGet))
+	// mux.Post("/user/signup", http.HandlerFunc(r.edp.UserSignupPost))
+	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(r.edp.UserSignupPost))
+	mux.Get("/user/logout", dynamicMiddleware.ThenFunc(r.edp.UserLogoutGet))
+	mux.Get("/files", dynamicMiddleware.ThenFunc(r.edp.FileUploadGet))
+	mux.Post("/files", dynamicMiddleware.ThenFunc(r.edp.FileUploadPost))
 
 	// file server for static files
 	fileServer := http.FileServer(http.Dir("./website/static/"))

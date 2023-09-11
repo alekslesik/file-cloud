@@ -17,7 +17,7 @@ type AppConfig struct {
 }
 
 type LoggerConfig struct {
-	LogFilePath string `env:"LOG_FILE" env-default:"tmp/log.log"`
+	LogFilePath string `env:"LOG_FILE" env-default:"./tmp/log.log"`
 	MaxSize     int    `env:"LOG_MAXSIZE" env-default:"100"`
 	MaxBackups  int    `env:"LOG_MAXBACKUP" env-default:"3"`
 	MaxAge      int    `env:"LOG_MAXAGE" env-default:"24"`

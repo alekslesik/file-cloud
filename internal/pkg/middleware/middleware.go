@@ -15,7 +15,7 @@ import (
 
 type contextKey string
 
-var contextKeyUser = contextKey("user")
+var contextKeyUser = contextKey("userID")
 
 type Middleware struct {
 	ses *session.Session
@@ -65,8 +65,10 @@ func (m *Middleware) LogRequest(next http.Handler) http.Handler {
 
 func (m *Middleware) RecoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		op := "middleware.RecoverPanic()"
 		defer func() {
 			if err := recover(); err != nil {
+				m.log.Error().Msgf("%s: %v", op, err)
 				// if panic - set Connection close
 				w.Header().Set("Connection", "close")
 				// return 500 internal server response
@@ -107,7 +109,8 @@ func (m *Middleware) Authenticate(next http.Handler) http.Handler {
 		// Fetch the details of the current user from the database.
 		// If no matching record is found, remove the (invalid) userID from
 		// their session and call the next handler in the chain as normal.
-		user, err := m.mdl.Users.Get(m.ses.GetInt(r, "userID"))
+		userID := m.ses.GetInt(r, "userID")
+		user, err := m.mdl.Users.Get(userID)
 		if err == models.ErrNoRecord {
 			m.ses.Remove(r, "userID")
 			next.ServeHTTP(w, r)
