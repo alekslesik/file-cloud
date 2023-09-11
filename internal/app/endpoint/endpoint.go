@@ -55,7 +55,10 @@ func (e *Endpoint) HealthcheckHandler(w http.ResponseWriter, r *http.Request) {
 
 // Home GET /
 func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
-	e.tmpl.Render(w, r, "home.page.html", &template.TemplateData{})
+	flash := e.ses.PopString(r, "flash")
+	e.tmpl.Render(w, r, "home.page.html", &template.TemplateData{
+		Flash: flash,
+	})
 }
 
 // Login user GET /login.
