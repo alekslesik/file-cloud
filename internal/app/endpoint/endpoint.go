@@ -176,14 +176,18 @@ func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 
 // Files page GET /files
 func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
+	const op = "endpoint.FileUploadGet()"
+
 	// check user authenticate
-	userName := e.ses.GetString(r, template.UserName)
 	if template.AuthenticatedUser(r) != nil {
 		files, err := e.mdl.Files.All()
 		if err != nil {
+			e.log.Err(err).Msgf("%s > get all files", op)
 			e.er.ServerError(w, err)
+			return
 		}
 
+		userName := e.ses.GetString(r, template.UserName)
 		e.tmpl.Render(w, r, "files.page.html", &template.TemplateData{
 			UserName: userName,
 			Files: files,
