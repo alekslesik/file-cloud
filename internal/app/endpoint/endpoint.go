@@ -176,14 +176,18 @@ func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 
 // Files page GET /files
 func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
+	const op = "endpoint.FileUploadGet()"
+
 	// check user authenticate
-	userName := e.ses.GetString(r, template.UserName)
 	if template.AuthenticatedUser(r) != nil {
 		files, err := e.mdl.Files.All()
 		if err != nil {
+			e.log.Err(err).Msgf("%s > get all files from DB", op)
 			e.er.ServerError(w, err)
+			return
 		}
 
+		userName := e.ses.GetString(r, template.UserName)
 		e.tmpl.Render(w, r, "files.page.html", &template.TemplateData{
 			UserName: userName,
 			Files: files,
@@ -195,30 +199,37 @@ func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 
 // Files page POST /files
 func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
+	const op = "endpoint.FileUploadPost()"
+
 	// Parse request body
 	r.ParseMultipartForm(32 << 20)
 
 	// Get file from POST
-	file, handler, err := r.FormFile("file")
+	file, fHeader, err := r.FormFile("file")
 	if err != nil {
+		e.log.Err(err).Msgf("%s > get file from post", op)
 		e.er.ClientError(w, http.StatusBadRequest, fmt.Errorf("files page POST /files error"))
 	}
 	defer file.Close()
-	fileType := handler.Header.Get("Content-Type")
-	fileName := handler.Filename
-	fileSize := handler.Size
+	fileType := fHeader.Header.Get("Content-Type")
+	fileName := fHeader.Filename
+	fileSize := fHeader.Size
 
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
 	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize)
 	if err != nil {
+		e.log.Err(err).Msgf("%s > insert file to DB", op)
 		e.er.ServerError(w, err)
 		return
 	}
 
-	// Create/open file on /upload dir
-	f, err := os.OpenFile("../../upload/"+handler.Filename, os.O_WRONLY|os.O_CREATE, 0666)
+	fName := "./website/upload" + fHeader.Filename
+
+	// Create/open file from /upload dir
+	f, err := os.OpenFile(fName, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
+		e.log.Err(err).Msgf("%s > open file", op)
 		e.er.ServerError(w, err)
 	}
 	defer f.Close()
