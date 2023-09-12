@@ -15,7 +15,10 @@ import (
 	"github.com/justinas/nosurf"
 )
 
-const UserID = "userID"
+const (
+	UserID = "userID"
+	UserName = "userName"
+)
 
 type ClientServerError interface {
 	ClientError(http.ResponseWriter, int, error)
@@ -25,7 +28,6 @@ type ClientServerError interface {
 type Cache map[string]*template.Template
 
 type Template struct {
-	tmpl  *TemplateData
 	cache Cache
 	log   *logging.Logger
 	er    ClientServerError
@@ -44,7 +46,6 @@ type TemplateData struct {
 
 func New(logger *logging.Logger) *Template {
 	return &Template{
-		tmpl:  new(TemplateData),
 		cache: make(Cache),
 		log:   logger,
 	}
