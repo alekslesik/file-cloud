@@ -9,6 +9,7 @@ import (
 
 type AppConfig struct {
 	Port      int    `env:"PORT" env-default:"443"`
+	Host      string `env:"HOST" env-default:"localhost"`
 	Env       string `env:"ENV" env-default:"development"`
 	AdminUser struct {
 		Email    string `env:"ADMIN_EMAIL" env-default:"admin"`
@@ -25,7 +26,7 @@ type LoggerConfig struct {
 }
 
 type MySQLConfig struct {
-	DSN string `env:"WEB_DB_DSN" env-default:"web:Todor1990///@tcp(localhost:3306)/file_cloud?parseTime=true"`
+	DSN string `env:"WEB_DB_DSN" env-default:"file_cloud:Todor1990@tcp(localhost:3306)/file_cloud?parseTime=true"`
 }
 
 type TlsConfig struct {

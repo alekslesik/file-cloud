@@ -22,19 +22,22 @@ confirm:
 ## run: go run the cmd/* application
 .PHONY: run
 run:
-	systemctl stop file-cloud
+	# systemctl stop file-cloud
+	direnv allow
 	go run ./cmd/file-cloud -env=development
 
 ## run.prod: go run the cmd/* application in production
 .PHONY: run.prod
 run.prod:
-	systemctl stop file-cloud
+	# systemctl stop file-cloud
+	direnv allow
 	go run ./cmd/file-cloud -env=production
 
 ## run.bin: execute the bin/ binary file
 .PHONY: run.bin
 run.bin: local.build
-	systemctl stop file-cloud
+	# systemctl stop file-cloud
+	direnv allow
 	./bin/file-cloud -env=development
 
 #=====================================#
