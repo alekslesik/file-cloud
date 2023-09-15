@@ -22,7 +22,6 @@ confirm:
 ## run: go run the cmd/* application
 .PHONY: run
 run:
-	# systemctl stop file-cloud
 	direnv allow
 	go run ./cmd/file-cloud -env=development
 
