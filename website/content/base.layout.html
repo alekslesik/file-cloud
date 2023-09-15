@@ -19,25 +19,25 @@
 </head>
 
 <body>
-    {{with .Flash}}
-    <div class="flash">{{ . }}</div>
-    {{end}}
-    <nav id="topnav">
-        <ul>
-            <li><a href="/">Home</a></li>
-            {{if .AuthenticatedUser}}
-            <li><a href="/files">Files</a></li>
-            <!-- <li><a href="/add">Add</a></li> -->
-            <li class="login"><a href="/user/logout">Logout</a></li>
-            <li class="name">{{ .UserName}}</li>
-            {{ else }}
-            <li class="login"><a href="/user/login">Login</a></li>
-            <li class="login"><a href="/user/signup">Signup</a></li>
-            {{end}}
-        </ul>
-    </nav>
+    <header id="header">
+        {{with .Flash}}
+        <div class="flash">{{ . }}</div>
+        {{end}}
+        <nav id="topnav">
+            <ul class="bottom-menu">
+                <li class="left"><a href="/">Home</a></li>
+                {{if .AuthenticatedUser}}
+                <li class="left"><a href="/files">Files</a></li>
+                <li class="login right"><a href="/user/logout">Logout</a></li>
+                <li class="name right">{{ .UserName}}</li>
+                {{ else }}
+                <li class="login right"><a href="/user/login">Login</a></li>
+                <li class="login right"><a href="/user/signup">Signup</a></li>
+                {{end}}
+            </ul>
+        </nav>
+    </header>
     <main>
-
         {{template "body" .}}
     </main>
     {{template "footer" .}}

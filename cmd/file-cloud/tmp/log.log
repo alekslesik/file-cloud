@@ -1,0 +1,34 @@
+{"level":"info","time":"2023-09-15T11:51:46+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"listen tcp :443: bind: address already in use","time":"2023-09-15T11:51:46+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T11:51:46+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T11:51:46+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"listen tcp :443: bind: address already in use","time":"2023-09-15T11:51:46+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T11:51:57+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T11:59:54+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T11:59:54+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T11:59:54+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T11:59:54+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T11:59:54+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T11:59:55+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T11:59:55+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T11:59:55+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T11:59:55+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T11:59:55+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:39:39+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T12:39:39+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:39:39+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T12:39:40+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:39:45+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T12:39:45+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T12:46:16+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"listen tcp :443: bind: address already in use","time":"2023-09-15T12:46:16+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:46:16+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}
+{"level":"info","time":"2023-09-15T12:47:23+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:125","message":"server started on localhost:443/"}
+{"level":"error","error":"open ./tls/cert.pem: no such file or directory","time":"2023-09-15T12:47:23+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:122","message":"app.Run() > failed to start server"}
+{"level":"info","time":"2023-09-15T12:47:34+03:00","caller":"/root/go/src/github.com/alekslesik/file-cloud/internal/pkg/app/app.go:131","message":"server stopped"}

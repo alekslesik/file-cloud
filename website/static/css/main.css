@@ -13,18 +13,25 @@ body {
     line-height: 1.4em;
     background-color: #ffffff;
     color: #2b2b2b;
+    height: 100%;
 }
 
 body {
     max-width: 640px;
-    margin: 100px auto 100px auto;
+    display: flex;
+    flex-direction: column;
+    margin: auto;
 }
 
-#header,
-#content,
-#footer,
-#topnav {
-    margin: 0px 20px 0px 20px;
+
+#header {
+    position: relative;
+    min-height: 100px;
+}
+
+main {
+    flex: 1;
+    padding-bottom: 50px;
 }
 
 #content .date,
@@ -38,14 +45,27 @@ h1 {
     margin: 0.67em 0;
 }
 
-#topnav ul {
+#topnav ul.bottom-menu {
     list-style-type: none;
     margin: 0px 0px 20px 0px;
     padding: 0px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
 }
 
 #topnav ul li {
     display: inline-block;
+}
+
+#topnav ul li.left {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+#topnav ul li.right {
+    display: inline-block;
+    margin-left: 10px;
 }
 
 a {
@@ -55,22 +75,14 @@ a {
 }
 
 #footer {
-    margin: 20px 20px 0px 20px;
-    padding: 0px;
-    position: absolute;
-    max-width: 600px;
-    display: block;
-    width: 600px;
+    padding: 50px 0px 10px 0px;
     text-align: center;
     background-color: black;
     color: wheat;
-    padding-bottom: 50px;
-    bottom: 0;
 }
 
 .flash {
     width: 50%;
-    /* height: 50%; */
     overflow: auto;
     margin: auto;
     position: absolute;
@@ -79,7 +91,7 @@ a {
     bottom: 0;
     right: 0;
     text-align: center;
-    color:#00d25e;
+    color: #00d25e;
     z-index: -1;
 }
 
@@ -92,4 +104,8 @@ a {
     float: right;
     padding-left: 10px;
     color: #00d25e;
+}
+
+.post-content {
+    text-align: justify;
 }
