@@ -131,11 +131,16 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	form.MatchesPattern("email", forms.EmailRX)
 	form.MinLength("password", 6)
 
+
+
+	td := &template.TemplateData{}
+
 	// If there are any errors, redisplay the signup form.
 	if !form.Valid() {
-		e.tmpl.Render(w, r, "signup.page.html", &template.TemplateData{
-			Form: form,
-		})
+		errMsg := form.Errors.WholeErrorMessage("<br>")
+		form.Errors.Add("generic", errMsg)
+		td.Form = form
+		e.tmpl.Render(w, r, "signup.page.html", td)
 		return
 	}
 

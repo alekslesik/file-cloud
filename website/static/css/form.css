@@ -153,9 +153,12 @@ textarea:hover {
 }
 
 .error {
-  padding-top: 20px;
   color: red;
   text-align: center;
+}
+
+.error::placeholder {
+  color: red;
 }
 
 .input-file {
@@ -212,3 +215,4 @@ textarea:hover {
 .input-file input[type=file]:disabled+span {
   background-color: #eee;
 }
+
