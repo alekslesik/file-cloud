@@ -73,7 +73,6 @@ func (a *Application) Run() error {
 	csErrors := initCSError()
 
 	a.session = initSession(a.config)
-	// TODO add username to session //session = session.New([]byte(*userName))
 	a.model = initModel(dataBase)
 	a.middleware = initMiddleware(a.session, a.logger, csErrors, a.model)
 	a.template = initTemplate(a.logger)
