@@ -166,8 +166,6 @@ func AddDefaultData(td *TemplateData, r *http.Request) *TemplateData {
 	// Add current time.
 	td.CurrentYear = time.Now().Year()
 	// Add flash message.
-	// TODO sort out
-	// td.Flash = app.session.PopString(r, "flash")
 	// Check if user is authenticate.
 	td.AuthenticatedUser = AuthenticatedUser(r)
 	// Add the CSRF token to the templateData struct.
