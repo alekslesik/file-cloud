@@ -241,6 +241,8 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 
 	// Write got file to /upload
 	io.Copy(f, file)
+	
+	//
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/files", http.StatusSeeOther)
