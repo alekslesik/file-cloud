@@ -229,7 +229,7 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fName := "./website/upload" + fHeader.Filename
+	fName := "./website/upload/" + fHeader.Filename
 
 	// Create/open file from /upload dir
 	f, err := os.OpenFile(fName, os.O_WRONLY|os.O_CREATE, 0666)
@@ -241,7 +241,7 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 
 	// Write got file to /upload
 	io.Copy(f, file)
-	
+
 	//
 
 	// Redirect the user to the create snippet page.

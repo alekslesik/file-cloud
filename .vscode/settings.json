@@ -20,6 +20,8 @@
             "username": "file_cloud",
             "password": "Todor1990"
         }
-    ]
+    ],
+    "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
 
 }
