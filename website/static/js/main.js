@@ -16,7 +16,7 @@ $('.input-file input[type=file]').on('change', function () {
 function downloadFile(url) {
 	const link = $('<a>');
 	link.attr('href', url);
-	link.attr('download', url.split('/').pop()); // Получить имя файла из URL
+	link.attr('download', url.split('/').pop());
 	$('body').append(link);
 	link[0].click();
 	link.remove();
@@ -26,9 +26,25 @@ function downloadFile(url) {
 $(document).on('mouseover', function (e) {
 	if ($(e.target).hasClass('file')) {
 		const fileUrl = $(e.target).data('file-url');
-		$(e.target).css('cursor', 'pointer'); // Изменить курсор при наведении
+		$(e.target).css('cursor', 'pointer');
 		$(e.target).on('click', function () {
 			downloadFile(fileUrl);
 		});
 	}
+});
+
+$(document).ready(function () {
+    $('#file').change(function () {
+        var fileName = $(this).val().split('\\').pop();
+        $('#file-placeholder').text(fileName || 'Choose file');
+    });
+
+    $('#form').submit(function (event) {
+        var fileInput = $('#file')[0];
+
+        if (!fileInput.files || !fileInput.files[0]) {
+            event.preventDefault();
+            alert('Please choose a file');
+        }
+    });
 });
