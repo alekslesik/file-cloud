@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	UserID = "userID"
+	UserID   = "userID"
 	UserName = "userName"
 )
 

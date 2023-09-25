@@ -90,5 +90,3 @@ func (m *UserModel) Get(id int) (*models.User, error) {
 
 	return s, nil
 }
-
-

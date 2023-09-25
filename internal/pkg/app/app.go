@@ -113,7 +113,7 @@ func (a *Application) Run() error {
 				a.logger.Err(err).Msgf("%s > failed to start server", op)
 			}
 		}()
-		a.logger.Info().Msgf("server started on %s%s/",a.config.App.Host, srv.Addr)
+		a.logger.Info().Msgf("server started on %s%s/", a.config.App.Host, srv.Addr)
 	case ":443":
 		go func() {
 			if err := srv.ListenAndServeTLS(a.config.TLS.CertPath, a.config.TLS.KeyPath); err != nil {
@@ -121,7 +121,7 @@ func (a *Application) Run() error {
 				a.logger.Err(err).Msgf("%s > failed to start server", op)
 			}
 		}()
-		a.logger.Info().Msgf("server started on %s%s/",a.config.App.Host, srv.Addr)
+		a.logger.Info().Msgf("server started on %s%s/", a.config.App.Host, srv.Addr)
 	default:
 		a.logger.Error().Msgf("%s: port not exists %s", op, srv.Addr)
 	}
