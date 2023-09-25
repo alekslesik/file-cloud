@@ -35,24 +35,5 @@
 {{end}}
 
 <script>
-    // Функция для скачивания файла по URL
-    function downloadFile(url) {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = url.split('/').pop(); // Получить имя файла из URL
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
 
-    // Обработчик события при наведении курсора
-    document.addEventListener('mouseover', function (e) {
-        if (e.target && e.target.classList.contains('file')) {
-            const fileUrl = e.target.getAttribute('data-file-url');
-            e.target.style.cursor = 'pointer'; // Изменить курсор при наведении
-            e.target.addEventListener('click', function () {
-                downloadFile(fileUrl);
-            });
-        }
-    });
 </script>
