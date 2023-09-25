@@ -12,12 +12,12 @@ type FileModel struct {
 }
 
 // Add a new record to the users table.
-func (m *FileModel) Insert(name, fileType string, size int64) (int, error) {
+func (m *FileModel) Insert(fileName string, fileType string, fileSize int64, fileUrl string) (int, error) {
 	// SQL request we wanted to execute
-	stmt := `INSERT INTO files (name, type, size, created) VALUES(?, ?, ?, UTC_TIMESTAMP())`
+	stmt := `INSERT INTO files (name, type, size, created, url) VALUES(?, ?, ?, UTC_TIMESTAMP(), ?)`
 
 	// Use Exec() for execute SQL request
-	result, err := m.DB.Exec(stmt, name, fileType, size)
+	result, err := m.DB.Exec(stmt, fileName, fileType, fileSize, fileUrl)
 	if err != nil {
 		return 0, err
 	}
@@ -34,7 +34,7 @@ func (m *FileModel) Insert(name, fileType string, size int64) (int, error) {
 // Return snippet data by ID
 func (m *FileModel) Get(id int) (*models.File, error) {
 	// SQL request for getting data of one record
-	stmt := `SELECT id, name, type, size, created FROM files WHERE id = ?`
+	stmt := `SELECT id, name, type, size, created, url FROM files WHERE id = ?`
 
 	// Use QueryRow() for executing SQL request passing unreliable variable ID like a placeholder
 	row := m.DB.QueryRow(stmt, id)
@@ -59,7 +59,7 @@ func (m *FileModel) Get(id int) (*models.File, error) {
 // Return all files
 func (m *FileModel) All() ([]*models.File, error) {
 	// SQL request we wanted to execute
-	stmt := `SELECT id, name, type, size, created FROM files ORDER BY created`
+	stmt := `SELECT id, name, type, size, created, url FROM files ORDER BY created`
 
 	// Use Query() for execute SQL request
 	rows, err := m.DB.Query(stmt)
@@ -75,7 +75,7 @@ func (m *FileModel) All() ([]*models.File, error) {
 	for rows.Next() {
 		s := &models.File{}
 		// Use row.Scan() to copy the value from every sql.Row field to File Struct
-		err = rows.Scan(&s.ID, &s.Name, &s.Type, &s.Size, &s.Created)
+		err = rows.Scan(&s.ID, &s.Name, &s.Type, &s.Size, &s.Created, &s.URL)
 		if err != nil {
 			return nil, err
 		}
