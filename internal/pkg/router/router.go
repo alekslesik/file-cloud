@@ -41,11 +41,11 @@ func (r *Router) Route() http.Handler {
 	mux.Get("/user/login", dynamicMiddleware.ThenFunc(r.edp.UserLoginGet))
 	mux.Post("/user/login", dynamicMiddleware.ThenFunc(r.edp.UserLoginPost))
 	mux.Get("/user/signup", dynamicMiddleware.ThenFunc(r.edp.UserSignupGet))
-	// mux.Post("/user/signup", http.HandlerFunc(r.edp.UserSignupPost))
 	mux.Post("/user/signup", dynamicMiddleware.ThenFunc(r.edp.UserSignupPost))
 	mux.Get("/user/logout", dynamicMiddleware.ThenFunc(r.edp.UserLogoutGet))
 	mux.Get("/files", dynamicMiddleware.ThenFunc(r.edp.FileUploadGet))
 	mux.Post("/files", dynamicMiddleware.ThenFunc(r.edp.FileUploadPost))
+	mux.Get("/download/:filename", dynamicMiddleware.ThenFunc(r.edp.FileDownloadGet))
 
 	// file server for static files
 	fileServer := http.FileServer(http.Dir("./website/static/"))

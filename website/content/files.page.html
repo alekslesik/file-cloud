@@ -10,7 +10,7 @@
             <div class="files">
                 {{if .Files}}
                 {{range .Files}}
-                <div class="file">
+                <div class="file" data-file-url="{{.URL}}">
                     <p>{{ .Name}}</p>
                 </div>
                 {{end}}
@@ -21,8 +21,8 @@
                 <input type="hidden" name="csrf_token" value='{{.CSRFToken}}'>
                 <div>
                     <label class="input-file">
-                        <input id="file" type="file" name="file">
-                        <span>Сhoice File</span>
+                        <input id="file" type="file" name="file" style="display: none;">
+                        <span id="file-placeholder">Please choose a file</span>
                     </label>
                 </div>
                 <div>

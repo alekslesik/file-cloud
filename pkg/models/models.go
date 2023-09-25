@@ -19,6 +19,7 @@ type File struct {
 	Type    string
 	Size    string
 	Created time.Time
+	URL     string
 }
 
 type User struct {

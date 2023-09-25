@@ -59,7 +59,7 @@ func (e *Endpoint) HomeGet(w http.ResponseWriter, r *http.Request) {
 	userName := e.ses.GetString(r, template.UserName)
 	e.tmpl.Render(w, r, "home.page.html", &template.TemplateData{
 		UserName: userName,
-		Flash: flash,
+		Flash:    flash,
 	})
 }
 
@@ -131,8 +131,6 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	form.MatchesPattern("email", forms.EmailRX)
 	form.MinLength("password", 6)
 
-
-
 	td := &template.TemplateData{}
 
 	// If there are any errors, redisplay the signup form.
@@ -195,7 +193,7 @@ func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 		userName := e.ses.GetString(r, template.UserName)
 		e.tmpl.Render(w, r, "files.page.html", &template.TemplateData{
 			UserName: userName,
-			Files: files,
+			Files:    files,
 		})
 	} else {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
@@ -219,20 +217,21 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 	fileType := fHeader.Header.Get("Content-Type")
 	fileName := fHeader.Filename
 	fileSize := fHeader.Size
+	fileURL := "/download/" + fHeader.Filename
 
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
-	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize)
+	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize, fileURL)
 	if err != nil {
 		e.log.Err(err).Msgf("%s > insert file to DB", op)
 		e.er.ServerError(w, err)
 		return
 	}
 
-	fName := "./website/upload/" + fHeader.Filename
+	newFile := "./website/upload/" + fHeader.Filename
 
 	// Create/open file from /upload dir
-	f, err := os.OpenFile(fName, os.O_WRONLY|os.O_CREATE, 0666)
+	f, err := os.OpenFile(newFile, os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		e.log.Err(err).Msgf("%s > open file", op)
 		e.er.ServerError(w, err)
@@ -242,8 +241,31 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 	// Write got file to /upload
 	io.Copy(f, file)
 
-	//
-
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/files", http.StatusSeeOther)
+}
+
+// Download page GET /download/:filename
+func (e *Endpoint) FileDownloadGet(w http.ResponseWriter, r *http.Request) {
+	const op = "endpoint.FileDownloadGet()"
+
+	// Get file name from URL parameter
+	filename := r.URL.Query().Get(":filename")
+
+	// Full filepath on server
+	filePath := "./website/upload/" + filename
+
+	// Open file
+	file, err := os.Open(filePath)
+	if err != nil {
+		e.log.Err(err).Msgf("%s > open file", op)
+		e.er.ServerError(w, err)
+	}
+	defer file.Close()
+
+	// Set header for downloading file
+	w.Header().Set("Content-Disposition", "attachment; filename="+filename)
+
+	// Send file
+	io.Copy(w, file)
 }
