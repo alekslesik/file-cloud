@@ -8,7 +8,7 @@ import (
 )
 
 type AppConfig struct {
-	Port      int    `env:"PORT" env-default:"443"`
+	Port      int    `env:"PORT" env-default:"8080"`
 	Host      string `env:"HOST" env-default:"localhost"`
 	Env       string `env:"ENV" env-default:"development"`
 	AdminUser struct {

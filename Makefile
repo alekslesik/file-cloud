@@ -22,8 +22,8 @@ confirm:
 ## run: go run the cmd/* application
 .PHONY: run
 run:
-	# direnv allow
-	go run ./cmd/file-cloud -env=development
+	direnv allow
+	go run ./cmd/file-cloud -env=development -port=8080
 
 ## run.prod: go run the cmd/* application in production
 .PHONY: run.prod

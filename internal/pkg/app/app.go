@@ -106,7 +106,7 @@ func (a *Application) Run() error {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	switch srv.Addr {
-	case ":80":
+	case ":80", ":8080":
 		go func() {
 			if err := srv.ListenAndServe(); err != nil {
 				serverErr = err
