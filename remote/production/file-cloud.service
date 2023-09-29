@@ -13,14 +13,13 @@ StartLimitIntervalSec=600
 StartLimitBurst=5
 
 [Service]
-# Execute the API binary as the kasian user, loading the environment variables from
-# /etc/environment and using the working directory /home/web.
 Type=exec
 User=root
 Group=root
-# EnvironmentFile=/var/www/.env
+EnvironmentFile=/var/www/production.env
 WorkingDirectory=/var/www
-ExecStart=/var/www/file-cloud -port=8080 -env=production
+ExecStart=/var/www/file-cloud
+
 # Automatically restart the service after a 5-second wait if it exits with a non-zero
 # exit code. If it restarts more than 5 times in 600 seconds, then the rate limit we
 # configured above will be hit and it won't be restarted anymore.

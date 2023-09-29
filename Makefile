@@ -1,5 +1,5 @@
 # Include variables from the .envrc file
-include .envrc
+include development.env
 
 production_host_ip = "188.120.228.254"
 
@@ -50,7 +50,7 @@ unit.run: build unit.create unit.stop
 	sudo cp -r tls/ /var/www/
 	sudo cp -r tmp/ /var/www/
 	sudo cp -r website /var/www/
-	sudo cp -r .env /var/www/
+	sudo cp -r development.env /var/www/
 	sudo systemctl daemon-reload
 	sudo systemctl enable file-cloud
 	sudo systemctl restart file-cloud
@@ -169,5 +169,6 @@ production.connect:
 ## production.deploy: deploy the api to production
 .PHONY: production.deploy
 production.deploy: build
-	rsync -rP --delete ./bin/file-cloud ./migrations ./tls ./website ./.envrc root@${production_host_ip}:~/web
-	ssh -t root@${production_host_ip} 'migrate -path ~/web/migrations -database mysql://file_cloud:Todor1990@tcp/file_cloud up'
+	rsync -rP --delete ./bin/file-cloud ./migrations ./tls ./website ./production.env ./remote/production/file-cloud.service root@${production_host_ip}:/var/www/
+	ssh -t root@${production_host_ip} 'migrate -path ~/web/migrations -database mysql://file_cloud:Todor1990@tcp/file_cloud up && mv /var/www/file-cloud.service /etc/systemd/system/ && systemctl enable file-cloud && systemctl restart file-cloud && systemctl status file-cloud'
+	ssh -t root@${production_host_ip} 'tail -f /var/www/tmp/log.log'
