@@ -18,7 +18,7 @@ StartLimitBurst=5
 Type=exec
 User=root
 Group=root
-# EnvironmentFile=/etc/environment
+# EnvironmentFile=/var/www/.env
 WorkingDirectory=/var/www
 ExecStart=/var/www/file-cloud -port=8080 -env=production
 # Automatically restart the service after a 5-second wait if it exits with a non-zero

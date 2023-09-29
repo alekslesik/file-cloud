@@ -33,45 +33,46 @@ run.bin: build
 	direnv allow
 	./bin/linux_amd64/file-cloud -port=8080
 
-## run.service: go run local service
-.PHONY: run.service
-run.service: build
-	sudo cp bin/file-cloud /var/www
-	sudo cp -r tls/ /var/www/
-	sudo cp -r tmp/ /var/www/
-	sudo cp -r website /var/www/
-	sudo cp -r .envrc /var/www/
-
 
 #=====================================#
 # UNIT SERVISE #
 #=====================================#
 
-## create: create the file-cloud.servise
+## unit.create: create the file-cloud.servise
 .PHONY: unit.create
 unit.create:
 	sudo cp /home/kasian/go/src/githhub.com/alekslesik/file-cloud/remote/production/file-cloud.service /etc/systemd/system/
+
+## unit.run: go run local service
+.PHONY: unit.run
+unit.run: build unit.create unit.stop
+	sudo cp bin/file-cloud /var/www
+	sudo cp -r tls/ /var/www/
+	sudo cp -r tmp/ /var/www/
+	sudo cp -r website /var/www/
+	sudo cp -r .env /var/www/
+	sudo systemctl daemon-reload
 	sudo systemctl enable file-cloud
 	sudo systemctl restart file-cloud
 	sudo systemctl status file-cloud
+	tail -f /var/www/tmp/log.log
 
-
-## start: start the file-cloud.servise
+## unit.start: start the file-cloud.servise
 .PHONY: unit.start
 unit.start:
 	systemctl start file-cloud
 
-## stop: stop the file-cloud.servise
+## unit.stop: stop the file-cloud.servise
 .PHONY: unit.stop
 unit.stop:
 	systemctl stop file-cloud
 
-## restart: restart the file-cloud.servise
+## unit.restart: restart the file-cloud.servise
 .PHONY: unit.restart
 unit.restart:
 	systemctl restart file-cloud
 
-## status: status the file-cloud.servise
+## unit.status: status the file-cloud.servise
 .PHONY: unit.status
 unit.status:
 	systemctl status file-cloud
