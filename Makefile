@@ -1,5 +1,7 @@
 # Include variables from the .envrc file
-include .envrc
+include development.env
+
+production_host_ip = "188.120.228.254"
 
 #=====================================#
 # HELPERS #
@@ -25,40 +27,52 @@ run:
 	direnv allow
 	go run ./cmd/file-cloud -env=development -port=8080
 
-## run.prod: go run the cmd/* application in production
-.PHONY: run.prod
-run.prod:
-	# systemctl stop file-cloud
-	direnv allow
-	go run ./cmd/file-cloud -env=production
-
 ## run.bin: execute the bin/ binary file
 .PHONY: run.bin
-run.bin: local.build
-	# systemctl stop file-cloud
+run.bin: build
 	direnv allow
-	./bin/file-cloud -env=development
+	./bin/linux_amd64/file-cloud -port=8080
+
 
 #=====================================#
 # UNIT SERVISE #
 #=====================================#
 
-## start: start the file-cloud.servise
+## unit.create: create the file-cloud.servise
+.PHONY: unit.create
+unit.create:
+	sudo cp /home/kasian/go/src/githhub.com/alekslesik/file-cloud/remote/production/file-cloud.service /etc/systemd/system/
+
+## unit.run: go run local service
+.PHONY: unit.run
+unit.run: build unit.create unit.stop
+	sudo cp bin/file-cloud /var/www
+	sudo cp -r tls/ /var/www/
+	sudo cp -r tmp/ /var/www/
+	sudo cp -r website /var/www/
+	sudo cp -r development.env /var/www/
+	sudo systemctl daemon-reload
+	sudo systemctl enable file-cloud
+	sudo systemctl restart file-cloud
+	sudo systemctl status file-cloud
+	tail -f /var/www/tmp/log.log
+
+## unit.start: start the file-cloud.servise
 .PHONY: unit.start
 unit.start:
 	systemctl start file-cloud
 
-## stop: stop the file-cloud.servise
+## unit.stop: stop the file-cloud.servise
 .PHONY: unit.stop
 unit.stop:
 	systemctl stop file-cloud
 
-## restart: restart the file-cloud.servise
+## unit.restart: restart the file-cloud.servise
 .PHONY: unit.restart
 unit.restart:
 	systemctl restart file-cloud
 
-## status: status the file-cloud.servise
+## unit.status: status the file-cloud.servise
 .PHONY: unit.status
 unit.status:
 	systemctl status file-cloud
@@ -70,7 +84,7 @@ unit.status:
 ## mysql: connect to the database using mysql
 .PHONY: mysql
 mysql:
-	mysql -u web 'file_cloud' -p
+	mysql -u 'file_cloud' -p
 
 ## migrations.new name=$1: create a new database migration
 .PHONY: migrations.new
@@ -135,23 +149,26 @@ vendor:
 
 current_time = $(shell date --iso-8601=seconds)
 git_description = $(shell git describe --always --dirty --tags --long)
-linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_description}'
+linker_flags = -s -X main.buildTime=${current_time} -X main.version=${git_description}
 
-## build.prod: build the cmd/api application on production
-.PHONY: build.prod
-build.prod: audit
-	systemctl stop file-cloud
-	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
-	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
-	cp -a -R tls /var/www/
-	cp -a -R website /var/www/
-	cp -a -R tmp /var/www/
-	systemctl restart file-cloud
-	# tail -f /var/www/logs/log.log
+## build: build the cmd/api application
+.PHONY: build
+build: audit
+	@echo 'Building cmd/file-cloud...'
+	go build -ldflags "${linker_flags} -linkmode=external -extldflags '-static'" -o=./bin/file-cloud ./cmd/file-cloud
 
-## build.local: build the cmd/api application local
-.PHONY: build.local
-build.local: audit
-	systemctl stop file-cloud
-	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
-	./bin/file-cloud
+#=====================================#
+# PRODUCTION #
+#=====================================#
+
+## production.connect: connect to the production server
+.PHONY: production.connect
+production.connect:
+	ssh root@${production_host_ip}
+
+## production.deploy: deploy the api to production
+.PHONY: production.deploy
+production.deploy: build
+	rsync -rP --delete ./bin/file-cloud ./migrations ./tls ./website ./production.env ./remote/production/file-cloud.service root@${production_host_ip}:/var/www/
+	ssh -t root@${production_host_ip} 'migrate -path ~/web/migrations -database mysql://file_cloud:Todor1990@tcp/file_cloud up && mv /var/www/file-cloud.service /etc/systemd/system/ && systemctl enable file-cloud && systemctl restart file-cloud && systemctl status file-cloud'
+	ssh -t root@${production_host_ip} 'tail -f /var/www/tmp/log.log'
