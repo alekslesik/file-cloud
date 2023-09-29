@@ -53,6 +53,8 @@ unit.create:
 	sudo cp /home/kasian/go/src/githhub.com/alekslesik/file-cloud/remote/production/file-cloud.service /etc/systemd/system/
 	sudo systemctl enable file-cloud
 	sudo systemctl restart file-cloud
+	sudo systemctl status file-cloud
+
 
 ## start: start the file-cloud.servise
 .PHONY: unit.start
