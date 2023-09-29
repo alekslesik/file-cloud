@@ -93,5 +93,8 @@ func initRouter(endpoint *endpoint.Endpoint, middleware *middleware.Middleware, 
 // Declare an instance of the config struct
 // TODO figure out with path
 func initTemplate(logger *logging.Logger) *tmpl.Template {
-	return tmpl.New(logger).NewCache("/home/kasian/go/src/githhub.com/alekslesik/file-cloud/website/content")
+
+	appPath := os.Getenv("APP_PATH")
+
+	return tmpl.New(logger).NewCache(appPath + "/website/content")
 }

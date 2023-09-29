@@ -1,0 +1,13 @@
+export APP_PATH=/root/web
+export WEB_DB_DSN=mysql://file_cloud:Todor1990@tcp/file_cloud?parseTime=true
+export MIGRATE_DSN=mysql://file_cloud:Todor1990@localhost/file_cloud?parseTime=true
+export ADMIN_EMAIL=admin
+export ADMIN_PWD=admin
+export PORT=443
+export ENV=development
+export MYSQL_ROOT_PASS=486464Kokos
+export SESSION_SECRET=s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge
+export TLS_KEY_PATH=./tls/key.pem
+export TLS_CERT_PATH=./tls/cert.pem
+export LOG_FILE=tmp/log.log
+export HOST=https://alekslesik.fvds.ru/

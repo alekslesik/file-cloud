@@ -1,6 +1,8 @@
 # Include variables from the .envrc file
 include .envrc
 
+production_host_ip = "188.120.228.254"
+
 #=====================================#
 # HELPERS #
 #=====================================#
@@ -25,23 +27,32 @@ run:
 	direnv allow
 	go run ./cmd/file-cloud -env=development -port=8080
 
-## run.prod: go run the cmd/* application in production
-.PHONY: run.prod
-run.prod:
-	# systemctl stop file-cloud
-	direnv allow
-	go run ./cmd/file-cloud -env=production
-
 ## run.bin: execute the bin/ binary file
 .PHONY: run.bin
-run.bin: local.build
-	# systemctl stop file-cloud
+run.bin: build
 	direnv allow
-	./bin/file-cloud -env=development
+	./bin/linux_amd64/file-cloud -port=8080
+
+## run.service: go run local service
+.PHONY: run.service
+run.service: build
+	sudo cp bin/file-cloud /var/www
+	sudo cp -r tls/ /var/www/
+	sudo cp -r tmp/ /var/www/
+	sudo cp -r website /var/www/
+	sudo cp -r .envrc /var/www/
+
 
 #=====================================#
 # UNIT SERVISE #
 #=====================================#
+
+## create: create the file-cloud.servise
+.PHONY: unit.create
+unit.create:
+	sudo cp /home/kasian/go/src/githhub.com/alekslesik/file-cloud/remote/production/file-cloud.service /etc/systemd/system/
+	sudo systemctl enable file-cloud
+	sudo systemctl restart file-cloud
 
 ## start: start the file-cloud.servise
 .PHONY: unit.start
@@ -70,7 +81,7 @@ unit.status:
 ## mysql: connect to the database using mysql
 .PHONY: mysql
 mysql:
-	mysql -u web 'file_cloud' -p
+	mysql -u 'file_cloud' -p
 
 ## migrations.new name=$1: create a new database migration
 .PHONY: migrations.new
@@ -135,23 +146,25 @@ vendor:
 
 current_time = $(shell date --iso-8601=seconds)
 git_description = $(shell git describe --always --dirty --tags --long)
-linker_flags = '-s -X main.buildTime=${current_time} -X main.version=${git_description}'
+linker_flags = -s -X main.buildTime=${current_time} -X main.version=${git_description}
 
-## build.prod: build the cmd/api application on production
-.PHONY: build.prod
-build.prod: audit
-	systemctl stop file-cloud
-	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
-	GOOS=linux GOARCH=amd64 go build -ldflags=${linker_flags} -o=/var/www/file-cloud ./cmd/file-cloud
-	cp -a -R tls /var/www/
-	cp -a -R website /var/www/
-	cp -a -R tmp /var/www/
-	systemctl restart file-cloud
-	# tail -f /var/www/logs/log.log
+## build: build the cmd/api application
+.PHONY: build
+build: audit
+	@echo 'Building cmd/file-cloud...'
+	go build -ldflags "${linker_flags} -linkmode=external -extldflags '-static'" -o=./bin/file-cloud ./cmd/file-cloud
 
-## build.local: build the cmd/api application local
-.PHONY: build.local
-build.local: audit
-	systemctl stop file-cloud
-	go build -ldflags=${linker_flags} -o=./bin/file-cloud ./cmd/file-cloud
-	./bin/file-cloud
+#=====================================#
+# PRODUCTION #
+#=====================================#
+
+## production.connect: connect to the production server
+.PHONY: production.connect
+production.connect:
+	ssh root@${production_host_ip}
+
+## production.deploy: deploy the api to production
+.PHONY: production.deploy
+production.deploy: build
+	rsync -rP --delete ./bin/file-cloud ./migrations ./tls ./website ./.envrc root@${production_host_ip}:~/web
+	ssh -t root@${production_host_ip} 'migrate -path ~/web/migrations -database mysql://file_cloud:Todor1990@tcp/file_cloud up'
