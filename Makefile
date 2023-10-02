@@ -168,5 +168,10 @@ production.connect:
 .PHONY: production.deploy
 production.deploy: build
 	rsync -rP --delete ./bin/file-cloud ./migrations ./tls ./website ./production.env ./remote/production/file-cloud.service root@${production_host_ip}:/var/www/
-	ssh -t root@${production_host_ip} 'migrate -path ~/web/migrations -database mysql://file_cloud:Todor1990@tcp/file_cloud up && mv /var/www/file-cloud.service /etc/systemd/system/ && systemctl enable file-cloud && systemctl restart file-cloud && systemctl status file-cloud'
+	ssh -t root@${production_host_ip} 'migrate -path /var/www/migrations -database mysql://file_cloud:Todor1990@tcp/file_cloud up && mv /var/www/file-cloud.service /etc/systemd/system/ && systemctl enable file-cloud && systemctl restart file-cloud && systemctl status file-cloud'
 	ssh -t root@${production_host_ip} 'tail -f /var/www/tmp/log.log'
+
+## production.mysql: connect to the production mysql DB
+.PHONY: production.mysql
+production.mysql:
+	ssh -t root@${production_host_ip} 'mysql -u file_cloud -p'
