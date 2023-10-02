@@ -219,6 +219,7 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 	fileSize := fHeader.Size
 	fileURL := "/download/" + fHeader.Filename
 
+	
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
 	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize, fileURL)
