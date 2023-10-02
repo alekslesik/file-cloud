@@ -12,5 +12,7 @@ CREATE TABLE IF NOT EXISTS `files` (
   `name` varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL,
   `size` varchar(255) NOT NULL,
-  `created` datetime NOT NULL
+  `created` datetime NOT NULL,
+  `url` varchar(255) NOT NULL,
+  `user_id` int(11) NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
