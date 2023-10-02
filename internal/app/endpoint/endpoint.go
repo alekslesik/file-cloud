@@ -219,10 +219,12 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 	fileSize := fHeader.Size
 	fileURL := "/download/" + fHeader.Filename
 
-	
+
+	userId := e.ses.GetInt(r, template.UserID)
+
 	// Try to create a new user record in the database. If the email already exist
 	// add an error message to the form and re-display it.
-	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize, fileURL)
+	_, err = e.mdl.Files.Insert(fileName, fileType, fileSize, fileURL, userId)
 	if err != nil {
 		e.log.Err(err).Msgf("%s > insert file to DB", op)
 		e.er.ServerError(w, err)
@@ -241,6 +243,8 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 
 	// Write got file to /upload
 	io.Copy(f, file)
+
+	//
 
 	// Redirect the user to the create snippet page.
 	http.Redirect(w, r, "/files", http.StatusSeeOther)

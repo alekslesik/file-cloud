@@ -12,12 +12,12 @@ type FileModel struct {
 }
 
 // Add a new record to the users table.
-func (m *FileModel) Insert(fileName string, fileType string, fileSize int64, fileUrl string) (int, error) {
+func (m *FileModel) Insert(fileName string, fileType string, fileSize int64, fileUrl string, userID int) (int, error) {
 	// SQL request we wanted to execute
-	stmt := `INSERT INTO files (name, type, size, created, url) VALUES(?, ?, ?, UTC_TIMESTAMP(), ?)`
+	stmt := `INSERT INTO files (name, type, size, created, url, user_id) VALUES(?, ?, ?, UTC_TIMESTAMP(), ?, ?)`
 
 	// Use Exec() for execute SQL request
-	result, err := m.DB.Exec(stmt, fileName, fileType, fileSize, fileUrl)
+	result, err := m.DB.Exec(stmt, fileName, fileType, fileSize, fileUrl, userID)
 	if err != nil {
 		return 0, err
 	}

@@ -16,7 +16,7 @@ func New(db *sql.DB) *Model {
 
 type Model struct {
 	Files interface {
-		Insert(fileName string, fileType string, fileSize int64, fileUrl string) (int, error)
+		Insert(fileName string, fileType string, fileSize int64, fileUrl string, userID int) (int, error)
 		Get(id int) (*models.File, error)
 		All() ([]*models.File, error)
 	}
