@@ -57,12 +57,12 @@ func (m *FileModel) Get(id int) (*models.File, error) {
 }
 
 // Return all files
-func (m *FileModel) All() ([]*models.File, error) {
+func (m *FileModel) All(userId int) ([]*models.File, error) {
 	// SQL request we wanted to execute
-	stmt := `SELECT id, name, type, size, created, url FROM files ORDER BY created`
+	stmt := `SELECT id, name, type, size, created, url FROM files WHERE user_id=? ORDER BY created`
 
 	// Use Query() for execute SQL request
-	rows, err := m.DB.Query(stmt)
+	rows, err := m.DB.Query(stmt, userId)
 	if err != nil {
 		return nil, err
 	}

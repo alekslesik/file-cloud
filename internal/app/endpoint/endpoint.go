@@ -181,9 +181,11 @@ func (e *Endpoint) UserLogoutGet(w http.ResponseWriter, r *http.Request) {
 func (e *Endpoint) FileUploadGet(w http.ResponseWriter, r *http.Request) {
 	const op = "endpoint.FileUploadGet()"
 
+	userId := e.ses.GetInt(r, template.UserID)
+
 	// check user authenticate
 	if template.AuthenticatedUser(r) != nil {
-		files, err := e.mdl.Files.All()
+		files, err := e.mdl.Files.All(userId)
 		if err != nil {
 			e.log.Err(err).Msgf("%s > get all files from DB", op)
 			e.er.ServerError(w, err)
@@ -218,7 +220,6 @@ func (e *Endpoint) FileUploadPost(w http.ResponseWriter, r *http.Request) {
 	fileName := fHeader.Filename
 	fileSize := fHeader.Size
 	fileURL := "/download/" + fHeader.Filename
-
 
 	userId := e.ses.GetInt(r, template.UserID)
 

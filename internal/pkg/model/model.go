@@ -18,7 +18,7 @@ type Model struct {
 	Files interface {
 		Insert(fileName string, fileType string, fileSize int64, fileUrl string, userID int) (int, error)
 		Get(id int) (*models.File, error)
-		All() ([]*models.File, error)
+		All(userId int) ([]*models.File, error)
 	}
 	Users interface {
 		Insert(name, email, password string) error

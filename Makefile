@@ -24,13 +24,11 @@ confirm:
 ## run: go run the cmd/* application
 .PHONY: run
 run:
-	direnv allow
 	go run ./cmd/file-cloud -env=development -port=8080
 
 ## run.bin: execute the bin/ binary file
 .PHONY: run.bin
 run.bin: build
-	direnv allow
 	./bin/linux_amd64/file-cloud -port=8080
 
 
