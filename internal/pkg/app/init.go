@@ -6,6 +6,7 @@ import (
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
 	"github.com/alekslesik/file-cloud/internal/pkg/cserror"
+	"github.com/alekslesik/file-cloud/internal/pkg/mailer"
 	"github.com/alekslesik/file-cloud/internal/pkg/middleware"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
@@ -81,8 +82,8 @@ func initMiddleware(session *session.Session, logger *logging.Logger, CSError *c
 }
 
 // Declare an instance of the config struct
-func initEndpoint(template tmpl.Template, logger *logging.Logger, CSError *cserror.CSError, model *model.Model, session *session.Session) *endpoint.Endpoint {
-	return endpoint.New(&template, logger, CSError, model, *session)
+func initEndpoint(template tmpl.Template, logger *logging.Logger, CSError *cserror.CSError, model *model.Model, session *session.Session, mlr  *mailer.Mailer) *endpoint.Endpoint {
+	return endpoint.New(&template, logger, CSError, model, *session,  mlr)
 }
 
 // Declare an instance of the config struct
@@ -97,4 +98,9 @@ func initTemplate(logger *logging.Logger) *tmpl.Template {
 	appPath := os.Getenv("APP_PATH")
 
 	return tmpl.New(logger).NewCache(appPath + "/website/content")
+}
+
+// Declare an instance of the mailer struct
+func initMailer(cfg *config.Config) *mailer.Mailer {
+	return mailer.New(cfg.SMTP.Host, cfg.SMTP.Port, cfg.SMTP.Username, cfg.SMTP.Password, cfg.SMTP.Sender)
 }
