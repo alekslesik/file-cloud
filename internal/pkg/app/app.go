@@ -52,10 +52,10 @@ func (a *Application) Run() error {
 	flag.StringVar(&a.config.App.Env, "env", logging.DEVELOPMENT, "Environment (development|staging|production)")
 	flag.IntVar(&a.config.App.Port, "port", 443, "API server port")
 	a.config.MySQL.DSN = *flag.String("dsn", a.config.MySQL.DSN, "Name SQL data Source")
-	flag.StringVar(&a.config.SMTP.Host, "smtp-host", "sandbox.smtp.mailtrap.io", "SMTP host")
+	flag.StringVar(&a.config.SMTP.Host, "smtp-host", "app.debugmail.io", "SMTP host")
 	flag.IntVar(&a.config.SMTP.Port, "smtp-port", 25, "SMTP port")
-	flag.StringVar(&a.config.SMTP.Username, "smtp-username", "4b2deae6370e63", "SMTP username")
-	flag.StringVar(&a.config.SMTP.Password, "smtp-password", "b4b6f8682ad34a", "SMTP password")
+	flag.StringVar(&a.config.SMTP.Username, "smtp-username", "d40e021c-f8d5-49af-a118-81f40f7b84b7", "SMTP username")
+	flag.StringVar(&a.config.SMTP.Password, "smtp-password", "a8c960ed-d3ad-44e6-8461-37d40f15e569", "SMTP password")
 	flag.StringVar(&a.config.SMTP.Sender, "smtp-sender", "alekslesik@gmail.com", "SMTP sender")
 	flag.Parse()
 

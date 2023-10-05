@@ -14,7 +14,6 @@ import (
 // IMMEDIATELY ABOVE it, which indicates to Go that we want to store the contents of the
 // ./templates directory in the templateFS embedded file system variable.
 
-
 //go:embed "templates"
 var templateFS embed.FS
 
@@ -88,11 +87,15 @@ func (m Mailer) Send(recipient, templateFile string, data interface{}) error {
 	// opens a connection to the SMTP server, sends the message, then closes the
 	// connection. If there is a timeout, it will return a "dial tcp: i/o timeout"
 	// error.
-	err = m.dialer.DialAndSend(msg)
-	if err != nil {
-		return err
+	for i := 1; i <= 3; i++ {
+		err = m.dialer.DialAndSend(msg)
+		// If everything worked, return nil.
+		if nil == err {
+			return nil
+		}
+		// If it didn't work, sleep for a short time and retry.
+		time.Sleep(1000 * time.Millisecond)
 	}
 
-	return nil
-
+	return err
 }

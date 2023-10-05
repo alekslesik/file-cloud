@@ -137,7 +137,6 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	form.MatchesPattern("email", forms.EmailRX)
 	form.MinLength("password", 6)
 
-	// If there are any errors, redisplay the signup form.
 	if !form.Valid() {
 		errMsg := form.Errors.WholeErrorMessage("<br>")
 		form.Errors.Add("generic", errMsg)
@@ -147,8 +146,7 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Try to create a new user record in the database. If the email already exist
-	// add an error message to the form and re-display it.
+	// Create a new user record in the database.
 	err = e.mdl.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
 	if err == models.ErrDuplicateEmail {
 		e.log.Err(err).Msgf("%s > duplicate email", op)
@@ -163,20 +161,24 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Otherwise add a confirmation flash message to the session confirming
-	// their signup worked and asking them to log in.
+	// Add a confirmation flash message to the session
 	e.ses.Put(r, "flash", "Your signup was successful. Please log in.")
 
-	// Call the Send() method on our Mailer, passing in the user's email address,
-	// name of the template file, and the User struct containing the new user's data.
+	// Send confirmation email to user
 	email := form.Get("email")
 	name := form.Get("name")
-	err = e.mlr.Send(email, "user_welcome.html", struct{ Name string }{Name: name})
-	if err != nil {
-		e.log.Err(err).Msgf("%s > mail send error", op)
-		e.er.ServerError(w, err)
-		return
-	}
+
+	go func() {
+		err = e.mlr.Send(email, "user_welcome.html", struct{ Name string }{Name: name})
+		if err != nil {
+			e.log.Err(err).Msgf("%s > mail send error", op)
+			return
+		}
+	}()
+
+	// Send the client a 202 Accepted status code an redirect to /user/login
+	// This status code indicates that the request has been accepted for processing, but
+	// the processing has not been completed.
 
 	// GET
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
