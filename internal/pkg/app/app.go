@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/alekslesik/file-cloud/internal/app/endpoint"
+	"github.com/alekslesik/file-cloud/internal/pkg/mailer"
 	"github.com/alekslesik/file-cloud/internal/pkg/middleware"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/router"
@@ -34,6 +35,7 @@ type Application struct {
 	model      *model.Model
 	template   *tmpl.Template
 	dataBase   *sql.DB
+	mailer     *mailer.Mailer
 }
 
 // Create new instance of application
@@ -50,6 +52,11 @@ func (a *Application) Run() error {
 	flag.StringVar(&a.config.App.Env, "env", logging.DEVELOPMENT, "Environment (development|staging|production)")
 	flag.IntVar(&a.config.App.Port, "port", 443, "API server port")
 	a.config.MySQL.DSN = *flag.String("dsn", a.config.MySQL.DSN, "Name SQL data Source")
+	flag.StringVar(&a.config.SMTP.Host, "smtp-host", "app.debugmail.io", "SMTP host")
+	flag.IntVar(&a.config.SMTP.Port, "smtp-port", 25, "SMTP port")
+	flag.StringVar(&a.config.SMTP.Username, "smtp-username", "d40e021c-f8d5-49af-a118-81f40f7b84b7", "SMTP username")
+	flag.StringVar(&a.config.SMTP.Password, "smtp-password", "a8c960ed-d3ad-44e6-8461-37d40f15e569", "SMTP password")
+	flag.StringVar(&a.config.SMTP.Sender, "smtp-sender", "alekslesik@gmail.com", "SMTP sender")
 	flag.Parse()
 
 	logFile, err := logging.CreateLogFile(a.config.Logger.LogFilePath)
@@ -76,7 +83,8 @@ func (a *Application) Run() error {
 	a.model = initModel(dataBase)
 	a.middleware = initMiddleware(a.session, a.logger, csErrors, a.model)
 	a.template = initTemplate(a.logger)
-	a.endpoint = initEndpoint(*a.template, a.logger, csErrors, a.model, a.session)
+	a.mailer = initMailer(a.config)
+	a.endpoint = initEndpoint(*a.template, a.logger, csErrors, a.model, a.session, a.mailer)
 	a.router = initRouter(a.endpoint, a.middleware, a.session)
 
 	var serverErr error

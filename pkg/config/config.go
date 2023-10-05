@@ -38,12 +38,21 @@ type SessionConfig struct {
 	Secret string `env:"SESSION_SECRET" env-default:"s6Ndh+pPbnzHbS*+9Pk8qGWhTzbpa@ge"`
 }
 
+type SMTPConfig struct {
+	Host     string
+	Port     int
+	Username string
+	Password string
+	Sender   string
+}
+
 type Config struct {
 	App     AppConfig
 	Logger  LoggerConfig
 	MySQL   MySQLConfig
 	Session SessionConfig
 	TLS     TlsConfig
+	SMTP    SMTPConfig
 }
 
 // Singleton pattern

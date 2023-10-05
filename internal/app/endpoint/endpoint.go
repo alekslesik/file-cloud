@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/alekslesik/file-cloud/internal/pkg/mailer"
 	"github.com/alekslesik/file-cloud/internal/pkg/model"
 	"github.com/alekslesik/file-cloud/internal/pkg/session"
 	"github.com/alekslesik/file-cloud/internal/pkg/template"
@@ -34,15 +35,17 @@ type Endpoint struct {
 	er   ClientServerError
 	mdl  *model.Model
 	ses  session.Session
+	mlr  *mailer.Mailer
 }
 
-func New(tmpl Template, log *logging.Logger, er ClientServerError, mdl *model.Model, ses session.Session) *Endpoint {
+func New(tmpl Template, log *logging.Logger, er ClientServerError, mdl *model.Model, ses session.Session, mlr *mailer.Mailer) *Endpoint {
 	return &Endpoint{
 		tmpl: tmpl,
 		log:  log,
 		er:   er,
 		mdl:  mdl,
 		ses:  ses,
+		mlr:  mlr,
 	}
 }
 
@@ -74,6 +77,8 @@ func (e *Endpoint) UserLoginGet(w http.ResponseWriter, r *http.Request) {
 
 // Login user POST /login.
 func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
+	const op = "endpoint.UserLoginPost()"
+
 	err := r.ParseForm()
 	if err != nil {
 		e.er.ClientError(w, http.StatusBadRequest, fmt.Errorf("login user POST /login error"))
@@ -83,12 +88,14 @@ func (e *Endpoint) UserLoginPost(w http.ResponseWriter, r *http.Request) {
 	// Check whether the credentials are valid. If they're not, add a generic
 	// message to the form failures map and re-display the login page.
 	form := forms.New(r.PostForm)
-	id, userName, err := e.mdl.Users.Authenticate(form.Get("email"), form.Get("password"))
 
-	td := &template.TemplateData{}
+	email := form.Get("email")
+	password := form.Get("password")
+	id, userName, err := e.mdl.Users.Authenticate(email, password)
 
 	if err == models.ErrInvalidCredentials {
 		form.Errors.Add("generic", "Email or Password is incorrect")
+		td := &template.TemplateData{}
 		td.Form = form
 		e.tmpl.Render(w, r, "login.page.html", td)
 		return
@@ -110,7 +117,6 @@ func (e *Endpoint) UserSignupGet(w http.ResponseWriter, r *http.Request) {
 	e.tmpl.Render(w, r, "signup.page.html", &template.TemplateData{
 		Form: forms.New(nil),
 	})
-
 }
 
 // Sign up user POST /user/signup
@@ -131,19 +137,16 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 	form.MatchesPattern("email", forms.EmailRX)
 	form.MinLength("password", 6)
 
-	td := &template.TemplateData{}
-
-	// If there are any errors, redisplay the signup form.
 	if !form.Valid() {
 		errMsg := form.Errors.WholeErrorMessage("<br>")
 		form.Errors.Add("generic", errMsg)
+		td := &template.TemplateData{}
 		td.Form = form
 		e.tmpl.Render(w, r, "signup.page.html", td)
 		return
 	}
 
-	// Try to create a new user record in the database. If the email already exist
-	// add an error message to the form and re-display it.
+	// Create a new user record in the database.
 	err = e.mdl.Users.Insert(form.Get("name"), form.Get("email"), form.Get("password"))
 	if err == models.ErrDuplicateEmail {
 		e.log.Err(err).Msgf("%s > duplicate email", op)
@@ -158,9 +161,24 @@ func (e *Endpoint) UserSignupPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Otherwise add a confirmation flash message to the session confirming
-	// their signup worked and asking them to log in.
+	// Add a confirmation flash message to the session
 	e.ses.Put(r, "flash", "Your signup was successful. Please log in.")
+
+	// Send confirmation email to user
+	email := form.Get("email")
+	name := form.Get("name")
+
+	go func() {
+		err = e.mlr.Send(email, "user_welcome.html", struct{ Name string }{Name: name})
+		if err != nil {
+			e.log.Err(err).Msgf("%s > mail send error", op)
+			return
+		}
+	}()
+
+	// Send the client a 202 Accepted status code an redirect to /user/login
+	// This status code indicates that the request has been accepted for processing, but
+	// the processing has not been completed.
 
 	// GET
 	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
