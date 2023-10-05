@@ -82,8 +82,8 @@ func initMiddleware(session *session.Session, logger *logging.Logger, CSError *c
 }
 
 // Declare an instance of the config struct
-func initEndpoint(template tmpl.Template, logger *logging.Logger, CSError *cserror.CSError, model *model.Model, session *session.Session, mlr  *mailer.Mailer) *endpoint.Endpoint {
-	return endpoint.New(&template, logger, CSError, model, *session,  mlr)
+func initEndpoint(template tmpl.Template, logger *logging.Logger, CSError *cserror.CSError, model *model.Model, session *session.Session, mlr *mailer.Mailer) *endpoint.Endpoint {
+	return endpoint.New(&template, logger, CSError, model, *session, mlr)
 }
 
 // Declare an instance of the config struct

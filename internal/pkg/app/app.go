@@ -87,7 +87,6 @@ func (a *Application) Run() error {
 	a.endpoint = initEndpoint(*a.template, a.logger, csErrors, a.model, a.session, a.mailer)
 	a.router = initRouter(a.endpoint, a.middleware, a.session)
 
-
 	var serverErr error
 
 	// Get root certificate from system storage
