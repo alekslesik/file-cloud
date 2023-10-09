@@ -1,9 +1,12 @@
 {
     "cSpell.words": [
         "cserror",
+        "CSPRNG",
+        "expirytime",
         "Greenlight",
         "justinas",
-        "nosurf"
+        "nosurf",
+        "Thisincludes"
     ],
     "sqltools.connections": [
         {

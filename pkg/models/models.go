@@ -29,3 +29,12 @@ type User struct {
 	HashedPassword []byte
 	Created        time.Time
 }
+
+// Define a Token struct to hold the data for an individual token.
+type Token struct {
+	Plaintext string
+	Hash      []byte
+	UserID    int64
+	Expiry    time.Time
+	Scope     string
+}
